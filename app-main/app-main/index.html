@@ -1,0 +1,2251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rockhounding For Beginners - The OG! - Rock Exchange</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ===== RESET & BASE ===== */
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #f7f7f8 0%, #f7f7f8 100%);
+    color: #111827;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 20px 10px;
+  }
+
+  .container {
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+
+  /* ===== HEADER ===== */
+  .header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  h1 {
+    color: #111827;
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+  }
+
+  p.subtitle {
+    font-size: 16px;
+    color: #6b7280;
+    margin-bottom: 0;
+  }
+
+  h2 {
+    color: #111827;
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+
+  h3 {
+    color: #111827;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 20px 0 12px 0;
+  }
+
+  /* ===== TABS ===== */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    border-bottom: 2px solid #e5e7eb;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tab {
+    padding: 14px 24px;
+    background: #d0d8e0;              /* ← light tab background */
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: #6b7280;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    margin-bottom: -2px;
+    border-radius: 8px 8px 0 0;        /* ← makes it tab-like */
+  }
+
+  .tab:hover {
+    color: #111827;
+    background: #759ed3;              /* ← hover contrast */
+  }
+
+ .tab.active {
+    color: #3b82f6;
+    background: #ffffff;              /* ← active tab = page/card color */
+    border-bottom-color: #3b82f6;
+  }
+
+  .tab-content {
+    display: none;
+  }
+
+  .tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+  }
+
+  /* ===== CARDS ===== */
+  .card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 16px rgba(17, 24, 39, 0.08), 0 1px 4px rgba(17, 24, 39, 0.04);
+    border: 1px solid #e5e7eb;
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #f3f4f6;
+  }
+
+  .card-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
+  }
+
+  /* ===== DASHBOARD CARDS ===== */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+    border-radius: 12px;
+    padding: 24px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 8px rgba(17, 24, 39, 0.06);
+  }
+
+  .stat-label {
+    font-size: 13px;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  .stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: #111827;
+    line-height: 1;
+  }
+
+  /* ===== FORM ELEMENTS ===== */
+  label {
+    display: block;
+    font-size: 15px;
+    font-weight: 500;
+    color: #111827;
+    margin-bottom: 8px;
+  }
+
+  input[type="text"],
+  input[type="password"],
+  input[type="search"],
+  select,
+  textarea {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 15px;
+    font-family: 'Roboto', sans-serif;
+    border: 2px solid #d1d5db;
+    border-radius: 10px;
+    background: #f9fafb;
+    color: #111827;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  }
+
+  input[type="text"]:focus,
+  input[type="password"]:focus,
+  input[type="search"]:focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.18);
+  }
+
+  textarea {
+    min-height: 120px;
+    resize: vertical;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+  }
+
+  ::placeholder {
+    color: #9ca3af;
+  }
+
+  .search-box {
+    position: relative;
+    margin-bottom: 20px;
+  }
+
+  .search-box input {
+    padding-left: 44px;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6b7280;
+    font-size: 18px;
+  }
+
+  /* ===== BUTTONS ===== */
+  button {
+    background: #3b82f6;
+    border: none;
+    color: #ffffff;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: 'Roboto', sans-serif;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+    box-shadow: 0 3px 8px rgba(59, 130, 246, 0.25);
+    min-height: 44px;
+    margin-right: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  button:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+    box-shadow: 0 5px 14px rgba(37, 99, 235, 0.35);
+  }
+
+  button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.30);
+  }
+
+  button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .btn-secondary {
+    background: #374151;
+    box-shadow: 0 3px 8px rgba(55, 65, 81, 0.25);
+  }
+
+  .btn-secondary:hover {
+    background: #111827;
+    box-shadow: 0 5px 14px rgba(17, 24, 39, 0.35);
+  }
+
+  .btn-danger {
+    background: #dc2626;
+    box-shadow: 0 3px 8px rgba(220, 38, 38, 0.25);
+  }
+
+  .btn-danger:hover {
+    background: #b91c1c;
+    box-shadow: 0 5px 14px rgba(185, 28, 28, 0.35);
+  }
+
+  .btn-small {
+    padding: 6px 12px;
+    font-size: 13px;
+    min-height: 32px;
+    margin-right: 4px;
+  }
+
+  .btn-outline {
+    background: transparent;
+    border: 2px solid #d1d5db;
+    color: #374151;
+    box-shadow: none;
+  }
+
+  .btn-outline:hover {
+    background: #f3f4f6;
+    color: #111827;
+  }
+
+  /* ===== CODE ROW ===== */
+  .code-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    margin-top: 12px;
+  }
+
+  .code-row label {
+    font-size: 15px;
+    margin-bottom: 0;
+  }
+
+  .code-row input {
+    width: auto;
+    min-width: 180px;
+  }
+
+  /* ===== ADDRESS GRID ===== */
+  .address-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-top: 16px;
+    margin-bottom: 16px;
+  }
+
+  .address-grid label {
+    font-size: 14px;
+  }
+
+  .address-grid input,
+  .address-grid select {
+    width: 100%;
+  }
+
+  /* ===== FORM SECTIONS ===== */
+  .form-section {
+    margin-bottom: 20px;
+  }
+
+  #signupForm > div {
+    margin-bottom: 18px;
+  }
+
+  #signupIntro {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  #signupCode {
+    width: 180px !important;
+    max-width: 100%;
+    text-align: center;
+    letter-spacing: 3px;
+    font-weight: 600;
+    font-size: 18px;
+  }
+
+  /* ===== STATUS MESSAGES ===== */
+  .status {
+    margin-top: 16px;
+    min-height: 20px;
+    font-size: 15px;
+    text-align: center;
+    font-weight: 500;
+  }
+
+  .status.error {
+    color: #dc2626;
+  }
+
+  .status.success {
+    color: #16a34a;
+  }
+
+  /* ===== RESULT CARD ===== */
+  .result-card {
+    margin-top: 20px;
+    background: #eef2ff;
+    border-radius: 12px;
+    padding: 20px;
+    border: 2px solid #d1d5db;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  .result-card strong {
+    color: #1d4ed8;
+    font-weight: 600;
+  }
+
+  /* ===== SMALL NOTES ===== */
+  .small-note {
+    font-size: 13px;
+    color: #6b7280;
+    margin-top: 12px;
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  /* ===== TABLES ===== */
+  .table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-top: 16px;
+  }
+
+  .list-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    background: #fafafa;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+  }
+
+  .list-table th,
+  .list-table td {
+    padding: 14px 16px;
+    text-align: left;
+    vertical-align: middle;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .list-table th {
+    background: #f9fafb;
+    font-weight: 600;
+    color: #6b7280;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .list-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .list-table tbody tr:hover {
+    background: #f3f4f6;
+  }
+
+  .no-data {
+    text-align: center;
+    padding: 40px 20px;
+    color: #9ca3af;
+    font-size: 14px;
+  }
+
+  /* ===== BADGES ===== */
+  .badge {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+
+  .badge-approved {
+    background: #dcfce7;
+    color: #16a34a;
+  }
+
+  .badge-not-approved {
+    background: #fee2e2;
+    color: #dc2626;
+  }
+
+  .clickable {
+    cursor: pointer;
+    transition: transform 0.1s ease;
+  }
+
+  .clickable:hover {
+    transform: scale(1.05);
+  }
+
+  /* ===== PREVIEW TABLE ROW SELECTION ===== */
+  .preview-row {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+
+  .preview-row-selected {
+    background: #eff6ff !important;
+    border-left: 4px solid #3b82f6;
+  }
+
+  /* ===== MODAL ===== */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    backdrop-filter: blur(4px);
+  }
+
+  .modal-overlay.active {
+    display: flex;
+    animation: fadeIn 0.2s ease;
+  }
+
+  .modal {
+    background: #ffffff;
+    border-radius: 16px;
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease;
+  }
+
+  .modal-header {
+    padding: 24px 28px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .modal-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
+  }
+
+  .modal-body {
+    padding: 24px 28px;
+  }
+
+  .modal-footer {
+    padding: 20px 28px;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* ===== TOAST ===== */
+  .toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 400px;
+  }
+
+  .toast {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 16px 20px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: slideInRight 0.3s ease;
+    border-left: 4px solid #3b82f6;
+  }
+
+  .toast.success {
+    border-left-color: #16a34a;
+  }
+
+  .toast.error {
+    border-left-color: #dc2626;
+  }
+
+  .toast.info {
+    border-left-color: #3b82f6;
+  }
+
+  .toast-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .toast-message {
+    flex: 1;
+    font-size: 14px;
+    color: #111827;
+    line-height: 1.4;
+  }
+
+  .toast-close {
+    background: none;
+    border: none;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 0;
+    font-size: 18px;
+    line-height: 1;
+    opacity: 0.6;
+    min-height: auto;
+    margin: 0;
+    box-shadow: none;
+  }
+
+  .toast-close:hover {
+    opacity: 1;
+    transform: none;
+    box-shadow: none;
+  }
+
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(100px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  /* ===== LOADING SPINNER ===== */
+  .spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* ===== ANIMATIONS ===== */
+  .fade-in {
+    animation: fadeIn 0.4s ease forwards;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    h1 {
+      font-size: 28px;
+    }
+
+    .card {
+      padding: 20px;
+    }
+
+    .address-grid {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .code-row {
+      justify-content: stretch;
+      flex-direction: column;
+    }
+
+    .code-row input,
+    .code-row button {
+      width: 100%;
+    }
+
+    button {
+      width: 100%;
+      margin-right: 0;
+      margin-bottom: 8px;
+    }
+
+    .btn-small {
+      width: auto;
+      display: inline-flex;
+    }
+
+    .dashboard-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .modal {
+      margin: 0 10px;
+    }
+
+    .toast-container {
+      left: 20px;
+      right: 20px;
+      max-width: none;
+    }
+  }
+
+  /* ===== ACCESSIBILITY ===== */
+  input[type="text"]:focus,
+  input[type="password"]:focus,
+  input[type="search"]:focus,
+  select:focus,
+  button:focus {
+    outline: 3px solid #3b82f6;
+    outline-offset: 2px;
+  }
+
+  #signupForm br,
+  .address-grid br {
+    display: none;
+  }
+
+  #signupForm label,
+  .address-grid label {
+    display: block;
+    margin: 0 0 8px !important;
+    line-height: 1.3;
+  }
+
+  #signupForm input,
+  #signupForm select,
+  #signupForm textarea,
+  .address-grid input,
+  .address-grid select {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+</style>
+</head>
+
+<body autocomplete="off">
+<div class="container">
+  <div class="header">
+    <h1>Rockhounding For Beginners - The OG!</h1>
+    <p class="subtitle">The Original Rock Exchange</p>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" data-tab="public">Public List</button>
+    <button class="tab" data-tab="signup" id="signupTab">Sign Up</button>
+    <button class="tab" data-tab="reveal" id="revealTab">Reveal Match</button>
+    <button class="tab" data-tab="admin" id="adminTab">Admin</button>
+  </div>
+
+  <!-- Tab Content: Public List -->
+  <div class="tab-content active" id="publicContent">
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Current Sign-Up List</h2>
+      </div>
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="search" id="publicSearch" placeholder="Search by name or state...">
+      </div>
+      <div class="table-wrapper">
+        <table class="list-table" id="publicTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>State</th>
+              <th>Deposit Status</th>
+            </tr>
+          </thead>
+          <tbody id="publicTableBody">
+            <tr><td colspan="4" class="no-data">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab Content: Reveal Match -->
+  <div class="tab-content" id="revealContent">
+    <div class="card">
+      <h2>Reveal Your Match</h2>
+      <p class="small-note" style="margin-top:0; margin-bottom: 16px;">
+        Enter the same 4-digit code you used when signing up to see who you are sending your rocks to.
+      </p>
+      <div class="code-row">
+        <label for="revealCodeInput">Your code:</label>
+        <input id="revealCodeInput" type="text" maxlength="8" autocomplete="off" inputmode="numeric" placeholder="1234" style="width:180px;">
+        <button id="revealBtn" type="button">✨ Reveal My Match</button>
+      </div>
+      <div id="revealStatus" class="status"></div>
+      <div id="revealResultCard" class="result-card" style="display:none;"></div>
+
+      <!-- Tracking section -->
+      <div id="trackingSection" style="display:none; margin-top:24px;">
+        <h3 style="font-size: 18px; margin-top: 0;">Submit Your Tracking Number</h3>
+        <p class="small-note" style="margin-bottom: 16px;">
+          After you have mailed your box, enter your tracking number below so the organizer can confirm and refund your deposit.
+        </p>
+        <div class="code-row">
+          <label for="trackingInput">Tracking #:</label>
+          <input id="trackingInput" type="text" autocomplete="off" placeholder="e.g. 9400 1234 5678 9000 0000 00" style="min-width:280px;">
+          <button id="submitTrackingBtn" class="btn-secondary" type="button">📦 Submit Tracking</button>
+        </div>
+        <div id="trackingStatus" class="status"></div>
+        <div id="incomingTrackingDisplay" class="small-note" style="margin-top:12px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab Content: Sign Up -->
+  <div class="tab-content" id="signupContent">
+    <div class="card">
+      <h2>Sign Up for the Exchange</h2>
+      <div id="signupIntro">
+        <button id="showSignupBtn" type="button">📝 Sign Up for This Exchange</button>
+      </div>
+
+      <form id="signupForm" style="display:none;max-width:700px;margin:0 auto;">
+        <div>
+          <label for="signupName">Full Name</label>
+          <input id="signupName" type="text" autocomplete="off" placeholder="Enter your name">
+        </div>
+
+        <div class="address-grid">
+          <div>
+            <label for="signupStreet">Street Address</label>
+            <input id="signupStreet" type="text" autocomplete="off" placeholder="412 17th Avenue">
+          </div>
+          <div>
+            <label for="signupCity">City</label>
+            <input id="signupCity" type="text" autocomplete="off" placeholder="Hinton">
+          </div>
+          <div>
+            <label for="signupState">State/Province</label>
+            <select id="signupState">
+              <option value="">-- Select --</option>
+              <option value="AL">Alabama (AL)</option><option value="AK">Alaska (AK)</option><option value="AZ">Arizona (AZ)</option>
+              <option value="AR">Arkansas (AR)</option><option value="CA">California (CA)</option><option value="CO">Colorado (CO)</option>
+              <option value="CT">Connecticut (CT)</option><option value="DE">Delaware (DE)</option><option value="FL">Florida (FL)</option>
+              <option value="GA">Georgia (GA)</option><option value="HI">Hawaii (HI)</option><option value="ID">Idaho (ID)</option>
+              <option value="IL">Illinois (IL)</option><option value="IN">Indiana (IN)</option><option value="IA">Iowa (IA)</option>
+              <option value="KS">Kansas (KS)</option><option value="KY">Kentucky (KY)</option><option value="LA">Louisiana (LA)</option>
+              <option value="ME">Maine (ME)</option><option value="MD">Maryland (MD)</option><option value="MA">Massachusetts (MA)</option>
+              <option value="MI">Michigan (MI)</option><option value="MN">Minnesota (MN)</option><option value="MS">Mississippi (MS)</option>
+              <option value="MO">Missouri (MO)</option><option value="MT">Montana (MT)</option><option value="NE">Nebraska (NE)</option>
+              <option value="NV">Nevada (NV)</option><option value="NH">New Hampshire (NH)</option><option value="NJ">New Jersey (NJ)</option>
+              <option value="NM">New Mexico (NM)</option><option value="NY">New York (NY)</option><option value="NC">North Carolina (NC)</option>
+              <option value="ND">North Dakota (ND)</option><option value="OH">Ohio (OH)</option><option value="OK">Oklahoma (OK)</option>
+              <option value="OR">Oregon (OR)</option><option value="PA">Pennsylvania (PA)</option><option value="RI">Rhode Island (RI)</option>
+              <option value="SC">South Carolina (SC)</option><option value="SD">South Dakota (SD)</option><option value="TN">Tennessee (TN)</option>
+              <option value="TX">Texas (TX)</option><option value="UT">Utah (UT)</option><option value="VT">Vermont (VT)</option>
+              <option value="VA">Virginia (VA)</option><option value="WA">Washington (WA)</option><option value="WV">West Virginia (WV)</option>
+              <option value="WI">Wisconsin (WI)</option><option value="WY">Wyoming (WY)</option>
+              <option value="DC">District of Columbia (DC)</option>
+              <option value="AB">Alberta (AB)</option><option value="BC">British Columbia (BC)</option><option value="MB">Manitoba (MB)</option>
+              <option value="NB">New Brunswick (NB)</option><option value="NL">Newfoundland and Labrador (NL)</option><option value="NS">Nova Scotia (NS)</option>
+              <option value="NT">Northwest Territories (NT)</option><option value="NU">Nunavut (NU)</option><option value="ON">Ontario (ON)</option>
+              <option value="PE">Prince Edward Island (PE)</option><option value="QC">Quebec (QC)</option><option value="SK">Saskatchewan (SK)</option>
+              <option value="YT">Yukon (YT)</option>
+            </select>
+          </div>
+          <div>
+            <label for="signupZip">ZIP / Postal Code</label>
+            <input id="signupZip" type="text" maxlength="12" autocomplete="off" placeholder="25951">
+          </div>
+        </div>
+
+        <div>
+          <label for="signupCode">Your 4-digit Code (choose a unique one)</label>
+          <input id="signupCode" type="text" maxlength="8" autocomplete="off" inputmode="numeric" placeholder="AB12">
+        </div>
+
+        <div>
+          <label for="signupPay">Deposit Payment Method</label>
+          <select id="signupPay">
+            <option value="">-- Select --</option>
+            <option value="PayPal">PayPal</option>
+            <option value="Cash App">Cash App</option>
+            <option value="Venmo">Venmo</option>
+          </select>
+        </div>
+
+        <div class="small-note" style="margin:16px 0 20px 0;">
+          You will be redirected to your chosen deposit method after sign up.
+        </div>
+
+        <div style="text-align:center;">
+          <button type="submit">✅ Submit Sign Up</button>
+        </div>
+      </form>
+
+      <div id="signupStatus" class="status"></div>
+    </div>
+  </div>
+
+  <!-- Tab Content: Admin -->
+  <div class="tab-content" id="adminContent">
+    <!-- Admin Login -->
+    <div class="card" id="adminLoginCard">
+      <h2>🔐 Admin Access</h2>
+      <p style="margin-bottom: 20px; color: #6d4c41;">Sign in with your authorized Google account to access the admin panel.</p>
+      <button id="adminLoginBtn" type="button">Sign In with Google</button>
+    </div>
+
+    <!-- Admin Dashboard (hidden until login) -->
+    <div id="adminDashboard" style="display:none;">
+      <!-- Stats Cards -->
+      <div class="dashboard-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Sign-Ups</div>
+          <div class="stat-value" id="statTotal">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Approved</div>
+          <div class="stat-value" id="statApproved">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Pending</div>
+          <div class="stat-value" id="statPending">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Tracking Submitted</div>
+          <div class="stat-value" id="statTracking">0</div>
+        </div>
+      </div>
+
+      <!-- Sign-Ups Management -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Sign-Ups Management</h2>
+          <button id="adminLogoutBtn" class="btn-outline btn-small" type="button">Sign Out</button>
+        </div>
+        <p class="small-note" style="text-align:left; margin-bottom: 16px;">
+          Click "Approve" to mark deposits as verified. Click "Delete" to remove a sign-up.
+        </p>
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="search" id="adminSearch" placeholder="Search by name, code, or address...">
+        </div>
+        <div class="table-wrapper">
+          <table class="list-table" id="adminTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Address</th>
+                <th>State</th>
+                <th>Code</th>
+                <th>Pay Method</th>
+                <th>Status</th>
+                <th>Tracking #</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminTableBody">
+              <tr><td colspan="9" class="no-data">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Assignments Preview -->
+      <div class="card">
+        <h2>Assignments Preview</h2>
+        <p class="small-note" style="text-align:left; margin-bottom: 16px;">
+          <strong>Preview Assignments:</strong> Generate assignments and click rows you don't like, then regenerate until satisfied.<br>
+          <strong>Commit Assignments:</strong> Saves the assignments and enables the reveal page.
+        </p>
+        <div style="margin-bottom:16px;">
+          <button id="generatePreviewBtn" class="btn-secondary" type="button">🎲 Preview Assignments</button>
+          <button id="commitAssignmentsBtn" class="btn-secondary" type="button">✅ Commit Assignments</button>
+          <button id="clearAllBtn" class="btn-danger" type="button">🗑 Clear All & Reset</button>
+        </div>
+        <div class="table-wrapper">
+          <table class="list-table" id="previewTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Sender</th>
+                <th></th>
+                <th>Receiver</th>
+              </tr>
+            </thead>
+            <tbody id="previewTableBody">
+              <tr><td colspan="4" class="no-data">Click "Preview Assignments" to generate</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title" id="modalTitle">Confirm Action</h3>
+    </div>
+    <div class="modal-body">
+      <p id="modalMessage">Are you sure?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" id="modalCancel">Cancel</button>
+      <button id="modalConfirm">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+
+<script>
+// ===== FIREBASE CONFIG (UNCHANGED) =====
+const firebaseConfig = {
+  apiKey: "AIzaSyDVlyLssFBefRTRWMNFtNJG7uKNKsWEqDA",
+  authDomain: "rock-exchange.firebaseapp.com",
+  projectId: "rock-exchange",
+  storageBucket: "rock-exchange.firebasestorage.app",
+  messagingSenderId: "916313020352",
+  appId: "1:916313020352:web:48c363939a1b923a751a25",
+  measurementId: "G-LS6C7PX4G4"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// ===== AUTH SETUP (UNCHANGED) =====
+const auth = firebase.auth();
+const provider = new firebase.auth.GoogleAuthProvider();
+provider.setCustomParameters({ prompt: "select_account" });
+
+let adminLoginInProgress = false;
+let ADMIN_EMAILS_CACHE = null;
+
+async function loadAdminEmailList() {
+  try {
+    const snap = await db.collection("appConfig").doc("admins").get();
+    if (!snap.exists) return [];
+    const data = snap.data() || {};
+    const list = Array.isArray(data.adminEmails) ? data.adminEmails : [];
+    return list.map(e => String(e || "").toLowerCase()).filter(Boolean);
+  } catch (e) {
+    console.error("Failed to load admin email list:", e);
+    return [];
+  }
+}
+
+async function isApprovedAdmin(user) {
+  if (!user || !user.email) return false;
+  const email = user.email.toLowerCase();
+
+  if (!ADMIN_EMAILS_CACHE) {
+    ADMIN_EMAILS_CACHE = await loadAdminEmailList();
+  }
+  return ADMIN_EMAILS_CACHE.includes(email);
+}
+
+// ===== UI HELPER FUNCTIONS =====
+
+// Tab Navigation
+function initTabs() {
+  const tabs = document.querySelectorAll('.tab');
+  const contents = document.querySelectorAll('.tab-content');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const targetId = tab.dataset.tab + 'Content';
+      
+      tabs.forEach(t => t.classList.remove('active'));
+      contents.forEach(c => c.classList.remove('active'));
+      
+      tab.classList.add('active');
+      document.getElementById(targetId).classList.add('active');
+    });
+  });
+}
+
+// Toast Notifications
+function showToast(message, type = 'info') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  
+  const icons = {
+    success: '✅',
+    error: '❌',
+    info: 'ℹ️'
+  };
+  
+  toast.innerHTML = `
+    <span class="toast-icon">${icons[type] || icons.info}</span>
+    <div class="toast-message">${message}</div>
+    <button class="toast-close">×</button>
+  `;
+  
+  container.appendChild(toast);
+  
+  const closeBtn = toast.querySelector('.toast-close');
+  closeBtn.addEventListener('click', () => {
+    toast.style.animation = 'slideInRight 0.3s ease reverse';
+    setTimeout(() => toast.remove(), 300);
+  });
+  
+  setTimeout(() => {
+    toast.style.animation = 'slideInRight 0.3s ease reverse';
+    setTimeout(() => toast.remove(), 300);
+  }, 5000);
+}
+
+// Modal
+let modalResolve = null;
+
+function showModal(title, message, confirmText = 'Confirm', cancelText = 'Cancel') {
+  return new Promise((resolve) => {
+    const overlay = document.getElementById('modalOverlay');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalMessage = document.getElementById('modalMessage');
+    const confirmBtn = document.getElementById('modalConfirm');
+    const cancelBtn = document.getElementById('modalCancel');
+    
+    modalTitle.textContent = title;
+    modalMessage.textContent = message;
+    confirmBtn.textContent = confirmText;
+    cancelBtn.textContent = cancelText;
+    
+    overlay.classList.add('active');
+    modalResolve = resolve;
+    
+    const handleConfirm = () => {
+      cleanup();
+      resolve(true);
+    };
+    
+    const handleCancel = () => {
+      cleanup();
+      resolve(false);
+    };
+    
+    const cleanup = () => {
+      overlay.classList.remove('active');
+      confirmBtn.removeEventListener('click', handleConfirm);
+      cancelBtn.removeEventListener('click', handleCancel);
+      overlay.removeEventListener('click', handleOverlayClick);
+    };
+    
+    const handleOverlayClick = (e) => {
+      if (e.target === overlay) {
+        handleCancel();
+      }
+    };
+    
+    confirmBtn.addEventListener('click', handleConfirm);
+    cancelBtn.addEventListener('click', handleCancel);
+    overlay.addEventListener('click', handleOverlayClick);
+  });
+}
+
+// Search/Filter
+function setupTableSearch(searchInputId, tableBodyId, filterFn) {
+  const searchInput = document.getElementById(searchInputId);
+  const tableBody = document.getElementById(tableBodyId);
+  
+  searchInput.addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase();
+    const rows = tableBody.querySelectorAll('tr');
+    
+    rows.forEach(row => {
+      if (row.classList.contains('no-data')) return;
+      
+      const text = filterFn ? filterFn(row) : row.textContent.toLowerCase();
+      row.style.display = text.includes(query) ? '' : 'none';
+    });
+  });
+}
+
+// ===== ADMIN UI FUNCTIONS =====
+
+function setAdminUI({ signedIn, authorized }) {
+  const adminTab = document.getElementById('adminTab');
+  const adminLoginCard = document.getElementById('adminLoginCard');
+  const adminDashboard = document.getElementById('adminDashboard');
+  
+  if (!signedIn || !authorized) {
+    adminLoginCard.style.display = 'block';
+    adminDashboard.style.display = 'none';
+    return;
+  }
+  
+  adminTab.style.display = 'block';
+  adminLoginCard.style.display = 'none';
+  adminDashboard.style.display = 'block';
+}
+
+async function adminLogin() {
+  if (adminLoginInProgress) return;
+  adminLoginInProgress = true;
+
+  const btn = document.getElementById('adminLoginBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Signing in...';
+
+  try {
+    ADMIN_EMAILS_CACHE = null;
+    await auth.signInWithPopup(provider);
+  } catch (err) {
+    console.error("Admin login failed:", err);
+
+    if (err && err.code === "auth/popup-blocked") {
+      showToast("Popup was blocked. Please allow popups for this site.", "error");
+    } else if (err && err.code !== "auth/cancelled-popup-request") {
+      showToast("Admin sign-in failed.", "error");
+    }
+  } finally {
+    adminLoginInProgress = false;
+    btn.disabled = false;
+    btn.textContent = 'Sign In with Google';
+  }
+}
+
+function adminLogout() {
+  auth.signOut();
+  showToast("Signed out successfully", "success");
+}
+
+// ===== AUTH STATE LISTENER (UNCHANGED LOGIC) =====
+auth.onAuthStateChanged(async (user) => {
+  if (!user) {
+    setAdminUI({ signedIn: false, authorized: false });
+    return;
+  }
+
+  const ok = await isApprovedAdmin(user);
+  if (!ok) {
+    showToast("This Google account is not approved as an admin.", "error");
+    await auth.signOut();
+    setAdminUI({ signedIn: false, authorized: false });
+    return;
+  }
+
+  setAdminUI({ signedIn: true, authorized: true });
+  showToast(`Welcome, ${user.displayName || user.email}`, "success");
+  
+  // Switch to admin tab
+  document.querySelector('[data-tab="admin"]').click();
+});
+
+// ===== HELPER FUNCTIONS (UNCHANGED) =====
+
+function regionForState(st) {
+  const up = (st || "").toUpperCase();
+  const stateToRegion = {
+    ME:"Northeast", NH:"Northeast", VT:"Northeast", MA:"Northeast",
+    RI:"Northeast", CT:"Northeast", NY:"Northeast", NJ:"Northeast",
+    PA:"Northeast",
+
+    OH:"Midwest", MI:"Midwest", IN:"Midwest", IL:"Midwest",
+    WI:"Midwest", MN:"Midwest", IA:"Midwest", MO:"Midwest",
+    ND:"Midwest", SD:"Midwest", NE:"Midwest", KS:"Midwest",
+
+    DE:"South", MD:"South", DC:"South", VA:"South", WV:"South",
+    NC:"South", SC:"South", GA:"South", FL:"South",
+    KY:"South", TN:"South", AL:"South", MS:"South",
+    AR:"South", LA:"South", OK:"South", TX:"South",
+
+    MT:"Mountain", ID:"Mountain", WY:"Mountain", CO:"Mountain",
+    NM:"Mountain", AZ:"Mountain", UT:"Mountain", NV:"Mountain",
+
+    WA:"West", OR:"West", CA:"West",
+
+    AK:"Alaska", HI:"Hawaii"
+  };
+  return stateToRegion[up] || "Unknown";
+}
+
+function titleCaseWord(word) {
+  if (!word) return "";
+  return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+}
+
+function formatName(name) {
+  if (!name) return "";
+  return name
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim()
+    .split(" ")
+    .map(w => titleCaseWord(w))
+    .join(" ");
+}
+
+function formatCity(city) {
+  if (!city) return "";
+  return city
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim()
+    .split(" ")
+    .map(w => titleCaseWord(w))
+    .join(" ");
+}
+
+function formatStreet(street) {
+  if (!street) return "";
+  let cleaned = street.replace(/\s+/g, " ").trim();
+  if (!cleaned) return "";
+
+  const suffixMap = {
+    "st": "St.", "street": "St.", "rd": "Rd.", "road": "Rd.",
+    "ave": "Ave.", "avenue": "Ave.", "blvd": "Blvd.", "boulevard": "Blvd.",
+    "ln": "Ln.", "lane": "Ln.", "dr": "Dr.", "drive": "Dr.",
+    "ct": "Ct.", "court": "Ct.", "pkwy": "Pkwy.", "parkway": "Pkwy.",
+    "pl": "Pl.", "place": "Pl."
+  };
+
+  const dirMap = {
+    "n": "N", "s": "S", "e": "E", "w": "W",
+    "ne": "NE", "nw": "NW", "se": "SE", "sw": "SW"
+  };
+
+  const parts = cleaned.split(" ");
+  const out = parts.map(part => {
+    let raw = part;
+    let trailing = "";
+
+    if (/[.,]$/.test(raw)) {
+      trailing = raw.slice(-1);
+      raw = raw.slice(0, -1);
+    }
+
+    const lower = raw.toLowerCase();
+
+    if (dirMap[lower]) return dirMap[lower] + trailing;
+    if (suffixMap[lower]) return suffixMap[lower] + trailing;
+    if (/\d/.test(raw)) return raw + trailing;
+
+    return titleCaseWord(raw) + trailing;
+  });
+
+  return out.join(" ");
+}
+
+function fullStateName(code) {
+  const c = (code || "").toUpperCase().trim();
+  const map = {
+    AL:"Alabama", AK:"Alaska", AZ:"Arizona", AR:"Arkansas", CA:"California",
+    CO:"Colorado", CT:"Connecticut", DE:"Delaware", FL:"Florida", GA:"Georgia",
+    HI:"Hawaii", ID:"Idaho", IL:"Illinois", IN:"Indiana", IA:"Iowa",
+    KS:"Kansas", KY:"Kentucky", LA:"Louisiana", ME:"Maine", MD:"Maryland",
+    MA:"Massachusetts", MI:"Michigan", MN:"Minnesota", MS:"Mississippi", MO:"Missouri",
+    MT:"Montana", NE:"Nebraska", NV:"Nevada", NH:"New Hampshire", NJ:"New Jersey",
+    NM:"New Mexico", NY:"New York", NC:"North Carolina", ND:"North Dakota", OH:"Ohio",
+    OK:"Oklahoma", OR:"Oregon", PA:"Pennsylvania", RI:"Rhode Island", SC:"South Carolina",
+    SD:"South Dakota", TN:"Tennessee", TX:"Texas", UT:"Utah", VT:"Vermont",
+    VA:"Virginia", WA:"Washington", WV:"West Virginia", WI:"Wisconsin", WY:"Wyoming",
+    DC:"District of Columbia",
+    AB:"Alberta", BC:"British Columbia", MB:"Manitoba", NB:"New Brunswick",
+    NL:"Newfoundland and Labrador", NS:"Nova Scotia", NT:"Northwest Territories",
+    NU:"Nunavut", ON:"Ontario", PE:"Prince Edward Island", QC:"Quebec",
+    SK:"Saskatchewan", YT:"Yukon"
+  };
+  return map[c] || (code || "—");
+}
+
+// ===== TAB VISIBILITY BASED ON SETTINGS (UNCHANGED LOGIC) =====
+db.collection("settings").doc("global").onSnapshot((snap) => {
+  let revealEnabled = false;
+  if (snap.exists) {
+    const d = snap.data();
+    revealEnabled = !!d.revealEnabled;
+  }
+  
+  const revealTab = document.getElementById('revealTab');
+  const signupTab = document.getElementById('signupTab');
+  
+  if (revealEnabled) {
+    revealTab.style.display = 'block';
+    signupTab.style.display = 'none';
+  } else {
+    signupTab.style.display = 'block';
+  }
+}, (err) => {
+  console.error("settings/global listener error:", err);
+});
+
+// ===== SIGN-UP LOGIC (UNCHANGED) =====
+const showSignupBtn = document.getElementById('showSignupBtn');
+const signupForm = document.getElementById('signupForm');
+const signupStatus = document.getElementById('signupStatus');
+
+showSignupBtn.addEventListener('click', () => {
+  signupForm.style.display = 'block';
+  showSignupBtn.style.display = 'none';
+});
+
+signupForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  signupStatus.textContent = "";
+  signupStatus.className = "status";
+
+  let name = document.getElementById('signupName').value.trim();
+  let street = document.getElementById('signupStreet').value.trim();
+  let city = document.getElementById('signupCity').value.trim();
+  const stateCode = document.getElementById('signupState').value.trim();
+  const zip = document.getElementById('signupZip').value.trim();
+  const codeRaw = document.getElementById('signupCode').value.trim();
+  const payment = document.getElementById('signupPay').value;
+
+  const code = codeRaw.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 4);
+
+  if (!name || !street || !city || !stateCode || !zip || !code || !payment) {
+    showToast("Please fill in all fields (name, full address, code, payment method).", "error");
+    return;
+  }
+
+  if (code.length !== 4) {
+    showToast("Code must be exactly 4 characters (A-Z / 0-9). Example: AB12", "error");
+    return;
+  }
+
+  name = formatName(name);
+  street = formatStreet(street);
+  city = formatCity(city);
+
+  const addressFull = `${street}, ${city}, ${stateCode} ${zip}`;
+
+  try {
+    await db.collection("signups").add({
+      name,
+      addressStreet: street,
+      addressCity: city,
+      addressStateCode: stateCode,
+      addressZip: zip,
+      addressFull,
+      state: stateCode,
+      code,
+      paymentMethod: payment,
+      depositSent: false,
+      depositApproved: false,
+      trackingNumber: "",
+      trackingSubmitted: false,
+      trackingSubmittedAt: null,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      assignedToId: null,
+      assignedToName: null,
+      assignedToAddressFull: null,
+      assignedToState: null,
+      assignedAt: null
+    });
+
+    showToast("✅ Sign-up successful! Redirecting to payment...", "success");
+
+    signupForm.reset();
+    signupForm.style.display = 'none';
+    showSignupBtn.style.display = 'inline-block';
+
+    setTimeout(() => openPayment(payment), 1000);
+
+  } catch (err) {
+    console.error(err);
+    showToast("Error saving sign-up. Please try again.", "error");
+  }
+});
+
+// ===== REVEAL MATCH LOGIC (UNCHANGED) =====
+const revealCodeInput = document.getElementById('revealCodeInput');
+const revealBtn = document.getElementById('revealBtn');
+const revealStatus = document.getElementById('revealStatus');
+const revealResultCard = document.getElementById('revealResultCard');
+const trackingSection = document.getElementById('trackingSection');
+const trackingInput = document.getElementById('trackingInput');
+const submitTrackingBtn = document.getElementById('submitTrackingBtn');
+const trackingStatus = document.getElementById('trackingStatus');
+const incomingTrackingDisplay = document.getElementById('incomingTrackingDisplay');
+
+let currentRevealDocId = null;
+
+async function loadIncomingTracking(myDocId) {
+  incomingTrackingDisplay.textContent = "";
+  try {
+    const snap = await db.collection("signups")
+      .where("assignedToId", "==", myDocId)
+      .limit(1)
+      .get();
+
+    if (snap.empty) {
+      incomingTrackingDisplay.textContent =
+        "Tracking number for the box coming to you: (not submitted yet)";
+      return;
+    }
+
+    const d = snap.docs[0].data();
+    if (d.trackingSubmitted && d.trackingNumber) {
+      incomingTrackingDisplay.textContent =
+        "Tracking number for the box coming to you: " + d.trackingNumber;
+    } else {
+      incomingTrackingDisplay.textContent =
+        "Tracking number for the box coming to you: (not submitted yet)";
+    }
+  } catch (err) {
+    console.error(err);
+    incomingTrackingDisplay.textContent =
+      "Unable to load tracking for your incoming package right now.";
+  }
+}
+
+async function revealMatch() {
+  revealStatus.textContent = "";
+  revealStatus.className = "status";
+  revealResultCard.style.display = "none";
+  revealResultCard.textContent = "";
+  trackingSection.style.display = "none";
+  trackingStatus.textContent = "";
+  trackingStatus.className = "status";
+  incomingTrackingDisplay.textContent = "";
+  currentRevealDocId = null;
+
+  const code = revealCodeInput.value.trim().toUpperCase();
+  if (!code) {
+    showToast("Please enter your code.", "error");
+    return;
+  }
+
+  try {
+    const settingsSnap = await db.collection("settings").doc("global").get();
+    const revealEnabled = settingsSnap.exists && !!settingsSnap.data().revealEnabled;
+    if (!revealEnabled) {
+      showToast("Assignments are not revealed yet. Please wait for the organizer.", "error");
+      return;
+    }
+
+    const snap = await db.collection("signups")
+      .where("code", "==", code)
+      .limit(1)
+      .get();
+
+    if (snap.empty) {
+      showToast("No sign-up found with that code. Double-check or contact the organizer.", "error");
+      return;
+    }
+
+    const doc = snap.docs[0];
+    const d = doc.data();
+    currentRevealDocId = doc.id;
+
+    const toName = d.assignedToName;
+    const toAddr = d.assignedToAddressFull || d.assignedToAddress || "";
+
+    if (!toName || !toAddr) {
+      showToast("You are signed up, but assignments are not ready yet.", "error");
+      return;
+    }
+
+    showToast("Match found!", "success");
+
+    revealResultCard.innerHTML =
+      `<div><strong>Hello ${d.name}!</strong></div>` +
+      `<div style="margin-top:6px;">For this Rock Exchange, you'll be sending rocks to:</div>` +
+      `<div style="margin-top:6px;padding-left:8px;"><strong>${toName}</strong><br>${toAddr}</div>` +
+      `<div style="margin-top:10px;font-size:12px;color:#475569;">` +
+      `Please mail your box on or before Dec. 12. Submit a valid tracking number and I will refund your deposit.` +
+      `</div>` +
+      `<div style="margin-top:6px;font-size:12px;color:#475569;">` +
+      `Thank you for being part of this Exchange!` +
+      `</div>`;
+
+    revealResultCard.style.display = "block";
+    revealResultCard.classList.remove("fade-in");
+    void revealResultCard.offsetWidth;
+    revealResultCard.classList.add("fade-in");
+
+    trackingInput.value = d.trackingNumber || "";
+    trackingSection.style.display = "block";
+
+    await loadIncomingTracking(doc.id);
+  } catch (err) {
+    console.error(err);
+    showToast("Error looking up your assignment. Please try again.", "error");
+  }
+}
+
+revealBtn.addEventListener('click', revealMatch);
+revealCodeInput.addEventListener('keyup', (e) => {
+  if (e.key === "Enter") revealMatch();
+});
+
+submitTrackingBtn.addEventListener('click', async () => {
+  trackingStatus.textContent = "";
+  trackingStatus.className = "status";
+
+  if (!currentRevealDocId) {
+    showToast("Please reveal your match first.", "error");
+    return;
+  }
+
+  const trackingNumber = trackingInput.value.trim();
+  if (!trackingNumber) {
+    showToast("Please enter a tracking number.", "error");
+    return;
+  }
+
+  try {
+    await db.collection("signups").doc(currentRevealDocId).update({
+      trackingNumber,
+      trackingSubmitted: true,
+      trackingSubmittedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    showToast("Tracking number submitted. Thank you!", "success");
+
+    await loadIncomingTracking(currentRevealDocId);
+  } catch (err) {
+    console.error(err);
+    showToast("Error saving tracking number. Please try again.", "error");
+  }
+});
+
+// ===== FIRESTORE LISTENERS (UNCHANGED) =====
+const publicTableBody = document.getElementById('publicTableBody');
+const adminTableBody = document.getElementById('adminTableBody');
+
+let allSignups = [];
+
+db.collection("signups")
+  .orderBy("createdAt", "asc")
+  .onSnapshot((snapshot) => {
+    allSignups = [];
+    const rowsPublic = [];
+    const rowsAdmin = [];
+    let idx = 0;
+    let approvedCount = 0;
+    let pendingCount = 0;
+    let trackingCount = 0;
+
+    snapshot.forEach(doc => {
+      idx++;
+      const d = doc.data();
+      allSignups.push({ id: doc.id, ...d });
+
+      const name = d.name || "";
+      const stateCode = d.addressStateCode || d.state || "";
+      const stateFull = fullStateName(stateCode);
+      const pm = d.paymentMethod || "";
+      const depositApproved = !!d.depositApproved;
+      const trackingNumber = d.trackingNumber || "";
+      const addressFull = d.addressFull || d.address || "";
+      const code = d.code || "";
+
+      if (depositApproved) approvedCount++;
+      else pendingCount++;
+      if (d.trackingSubmitted) trackingCount++;
+
+      // Public row
+      const trPub = document.createElement("tr");
+      trPub.innerHTML = `
+        <td>${idx}</td>
+        <td>${name}</td>
+        <td>${stateFull}</td>
+        <td>
+          <span class="badge ${depositApproved ? "badge-approved" : "badge-not-approved"}">
+            ${depositApproved ? "Approved" : "Pending"}
+          </span>
+        </td>
+      `;
+      rowsPublic.push(trPub);
+
+      // Admin row
+      const trAdmin = document.createElement("tr");
+      trAdmin.setAttribute("data-id", doc.id);
+      trAdmin.innerHTML = `
+        <td>${idx}</td>
+        <td>${name}</td>
+        <td style="max-width:260px;white-space:normal;">${addressFull}</td>
+        <td>${stateCode}</td>
+        <td>${code || "—"}</td>
+        <td>${pm || "—"}</td>
+        <td>
+          <span class="badge clickable ${depositApproved ? "badge-approved" : "badge-not-approved"}" data-action="approve">
+            ${depositApproved ? "Approved" : "Approve"}
+          </span>
+        </td>
+        <td>${trackingNumber ? trackingNumber : "—"}</td>
+        <td>
+          <button class="btn-small btn-danger" type="button" data-action="delete">Delete</button>
+        </td>
+      `;
+      rowsAdmin.push(trAdmin);
+    });
+
+    publicTableBody.innerHTML = "";
+    if (rowsPublic.length === 0) {
+      publicTableBody.innerHTML = '<tr><td colspan="4" class="no-data">No sign-ups yet</td></tr>';
+    } else {
+      rowsPublic.forEach(r => publicTableBody.appendChild(r));
+    }
+
+    adminTableBody.innerHTML = "";
+    if (rowsAdmin.length === 0) {
+      adminTableBody.innerHTML = '<tr><td colspan="9" class="no-data">No sign-ups yet</td></tr>';
+    } else {
+      rowsAdmin.forEach(r => adminTableBody.appendChild(r));
+    }
+
+    // Update stats
+    document.getElementById('statTotal').textContent = idx;
+    document.getElementById('statApproved').textContent = approvedCount;
+    document.getElementById('statPending').textContent = pendingCount;
+    document.getElementById('statTracking').textContent = trackingCount;
+
+  }, (err) => {
+    console.error("Error listening to signups:", err);
+    showToast("Error loading sign-ups", "error");
+  });
+
+// ===== ADMIN ACTIONS (WITH MODAL) =====
+adminTableBody.addEventListener('click', async (e) => {
+  const target = e.target;
+  if (!target) return;
+
+  const action = target.getAttribute('data-action');
+  if (!action) return;
+
+  const user = auth.currentUser;
+  const ok = await isApprovedAdmin(user);
+  if (!ok) {
+    showToast("Not authorized.", "error");
+    return;
+  }
+
+  const row = target.closest('tr');
+  if (!row) return;
+  const docId = row.getAttribute('data-id');
+  if (!docId) return;
+
+  try {
+    if (action === 'approve') {
+      await db.collection("signups").doc(docId).update({ depositApproved: true });
+      showToast("Deposit approved.", "success");
+      return;
+    }
+
+    if (action === 'delete') {
+      const confirmed = await showModal(
+        'Delete Sign-Up',
+        'Are you sure you want to delete this sign-up? This cannot be undone.',
+        'Delete',
+        'Cancel'
+      );
+      
+      if (!confirmed) return;
+
+      await db.collection("signups").doc(docId).delete();
+      showToast("Sign-up deleted.", "success");
+      return;
+    }
+  } catch (err) {
+    console.error(err);
+    showToast("Admin action failed: " + (err.code || "unknown"), "error");
+  }
+});
+
+// ===== ASSIGNMENTS (UNCHANGED LOGIC) =====
+const generatePreviewBtn = document.getElementById('generatePreviewBtn');
+const commitAssignmentsBtn = document.getElementById('commitAssignmentsBtn');
+const previewTableBody = document.getElementById('previewTableBody');
+const clearAllBtn = document.getElementById('clearAllBtn');
+
+let previewParticipants = null;
+let previewAssignments = null;
+let selectedPreviewFromIndices = new Set();
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function generateAssignments(participants) {
+  const n = participants.length;
+  if (n < 2) return null;
+
+  const idxs = [...Array(n).keys()];
+  let bestPerm = null;
+  let bestScore = Infinity;
+  const maxTries = 500;
+
+  function score(perm) {
+    let selfSend = 0;
+    let regionConf = 0;
+    let twoCycles = 0;
+
+    for (let i = 0; i < n; i++) {
+      const j = perm[i];
+      if (i === j) selfSend++;
+      const a = participants[i];
+      const b = participants[j];
+      if (a.region !== "Unknown" && b.region !== "Unknown" && a.region === b.region) {
+        regionConf++;
+      }
+    }
+
+    for (let i = 0; i < n; i++) {
+      const j = perm[i];
+      if (j > i && perm[j] === i) {
+        twoCycles++;
+      }
+    }
+
+    return selfSend * 10000 + twoCycles * 100 + regionConf;
+  }
+
+  for (let attempt = 0; attempt < maxTries; attempt++) {
+    shuffle(idxs);
+    const perm = idxs.slice();
+    const s = score(perm);
+    if (s < bestScore) {
+      bestScore = s;
+      bestPerm = perm.slice();
+      if (s === 0) break;
+    }
+  }
+
+  if (!bestPerm) return null;
+
+  for (let i = 0; i < n; i++) {
+    if (bestPerm[i] === i) {
+      let swapWith = -1;
+      for (let j = 0; j < n; j++) {
+        if (j === i) continue;
+        if (bestPerm[j] === j) continue;
+        if (bestPerm[j] === i) continue;
+        swapWith = j;
+        break;
+      }
+      if (swapWith === -1) {
+        const j = (i + 1) % n;
+        [bestPerm[i], bestPerm[j]] = [bestPerm[j], bestPerm[i]];
+      } else {
+        [bestPerm[i], bestPerm[swapWith]] = [bestPerm[swapWith], bestPerm[i]];
+      }
+    }
+  }
+
+  const assignments = [];
+  for (let i = 0; i < n; i++) {
+    assignments.push({ fromIndex: i, toIndex: bestPerm[i] });
+  }
+  return assignments;
+}
+
+function rerollSubsetAssignments(participants, assignments, selectedFromIdxArr) {
+  const n = participants.length;
+  if (selectedFromIdxArr.length < 2) return false;
+
+  const dest = new Array(n);
+  for (let i = 0; i < n; i++) {
+    dest[i] = assignments[i].toIndex;
+  }
+
+  const S = selectedFromIdxArr;
+  const m = S.length;
+  const pool = S.map(i => dest[i]);
+
+  const maxTries = 400;
+  let bestMap = null;
+  let bestScore = Infinity;
+
+  function scoreMapping(perm) {
+    const tempDest = dest.slice();
+    for (let k = 0; k < m; k++) {
+      const fromIdx = S[k];
+      const toIdx = pool[perm[k]];
+      tempDest[fromIdx] = toIdx;
+    }
+
+    let selfSend = 0;
+    let regionConf = 0;
+    let twoCycles = 0;
+
+    for (let i = 0; i < n; i++) {
+      const j = tempDest[i];
+      if (i === j) selfSend++;
+      const a = participants[i];
+      const b = participants[j];
+      if (a.region !== "Unknown" && b.region !== "Unknown" && a.region === b.region) {
+        regionConf++;
+      }
+    }
+
+    for (let i = 0; i < n; i++) {
+      const j = tempDest[i];
+      if (j > i && tempDest[j] === i) {
+        twoCycles++;
+      }
+    }
+
+    return selfSend * 10000 + twoCycles * 100 + regionConf;
+  }
+
+  for (let attempt = 0; attempt < maxTries; attempt++) {
+    const perm = [...Array(m).keys()];
+    shuffle(perm);
+
+    let bad = false;
+    for (let k = 0; k < m; k++) {
+      const fromIdx = S[k];
+      const toIdx = pool[perm[k]];
+      if (toIdx === fromIdx) {
+        bad = true;
+        break;
+      }
+    }
+    if (bad) continue;
+
+    const sc = scoreMapping(perm);
+    if (sc < bestScore) {
+      bestScore = sc;
+      bestMap = perm.slice();
+      if (sc === 0) break;
+    }
+  }
+
+  if (!bestMap) return false;
+
+  for (let k = 0; k < m; k++) {
+    const fromIdx = S[k];
+    const toIdx = pool[bestMap[k]];
+    dest[fromIdx] = toIdx;
+  }
+
+  for (let i = 0; i < n; i++) {
+    assignments[i].toIndex = dest[i];
+  }
+
+  return true;
+}
+
+function renderPreviewTable(participants, assignments) {
+  previewTableBody.innerHTML = "";
+  selectedPreviewFromIndices.clear();
+
+  if (!assignments || assignments.length === 0) {
+    previewTableBody.innerHTML = '<tr><td colspan="4" class="no-data">No assignments</td></tr>';
+    return;
+  }
+
+  assignments.forEach((a, idx) => {
+    const from = participants[a.fromIndex];
+    const to = participants[a.toIndex];
+
+    const tr = document.createElement("tr");
+    tr.className = "preview-row";
+    tr.setAttribute("data-from-index", String(a.fromIndex));
+    tr.innerHTML = `
+      <td>${idx + 1}</td>
+      <td>${from.name} (${from.stateCode})</td>
+      <td style="text-align:center;">→</td>
+      <td>${to.name} (${to.stateCode})</td>
+    `;
+    previewTableBody.appendChild(tr);
+  });
+
+  attachPreviewRowHandlers();
+}
+
+function attachPreviewRowHandlers() {
+  const rows = Array.from(previewTableBody.querySelectorAll('tr.preview-row'));
+  rows.forEach(row => {
+    row.addEventListener('click', () => {
+      const fromIdx = parseInt(row.getAttribute('data-from-index'), 10);
+      if (selectedPreviewFromIndices.has(fromIdx)) {
+        selectedPreviewFromIndices.delete(fromIdx);
+        row.classList.remove('preview-row-selected');
+      } else {
+        selectedPreviewFromIndices.add(fromIdx);
+        row.classList.add('preview-row-selected');
+      }
+    });
+  });
+}
+
+function sameParticipantSet(oldList, newList) {
+  if (!oldList) return false;
+  if (oldList.length !== newList.length) return false;
+  const oldIds = oldList.map(p => p.id).sort();
+  const newIds = newList.map(p => p.id).sort();
+  for (let i = 0; i < oldIds.length; i++) {
+    if (oldIds[i] !== newIds[i]) return false;
+  }
+  return true;
+}
+
+generatePreviewBtn.addEventListener('click', async () => {
+  const ok = await isApprovedAdmin(auth.currentUser);
+  if (!ok) {
+    showToast("Not authorized.", "error");
+    return;
+  }
+
+  try {
+    const snap = await db.collection("signups")
+      .where("depositApproved", "==", true)
+      .get();
+
+    if (snap.size < 2) {
+      showToast("Need at least 2 approved participants to generate assignments.", "error");
+      previewTableBody.innerHTML = '<tr><td colspan="4" class="no-data">Not enough approved participants</td></tr>';
+      previewParticipants = null;
+      previewAssignments = null;
+      selectedPreviewFromIndices.clear();
+      return;
+    }
+
+    const participantsNow = [];
+    snap.forEach(doc => {
+      const d = doc.data();
+      const stateCode = d.addressStateCode || d.state || "";
+      participantsNow.push({
+        id: doc.id,
+        name: d.name || "",
+        addressFull: d.addressFull || d.address || "",
+        stateCode,
+        region: regionForState(stateCode),
+        code: d.code || ""
+      });
+    });
+
+    if (!previewParticipants || !previewAssignments || !sameParticipantSet(previewParticipants, participantsNow)) {
+      const assignments = generateAssignments(participantsNow);
+      if (!assignments) {
+        showToast("Could not generate assignments. Try again.", "error");
+        previewTableBody.innerHTML = '<tr><td colspan="4" class="no-data">Generation failed</td></tr>';
+        previewParticipants = null;
+        previewAssignments = null;
+        selectedPreviewFromIndices.clear();
+        return;
+      }
+
+      previewParticipants = participantsNow;
+      previewAssignments = assignments;
+      renderPreviewTable(previewParticipants, previewAssignments);
+
+      showToast("Preview assignments generated. Click rows to re-roll.", "success");
+      return;
+    }
+
+    previewParticipants = participantsNow;
+    const selected = Array.from(selectedPreviewFromIndices);
+
+    if (selected.length === 0) {
+      const assignments = generateAssignments(previewParticipants);
+      if (!assignments) {
+        showToast("Could not re-roll assignments. Try again.", "error");
+        return;
+      }
+      previewAssignments = assignments;
+      renderPreviewTable(previewParticipants, previewAssignments);
+      showToast("Entire preview re-rolled.", "success");
+    } else if (selected.length === 1) {
+      showToast("Select at least 2 rows to re-roll subset.", "error");
+    } else {
+      const ok2 = rerollSubsetAssignments(previewParticipants, previewAssignments, selected);
+      if (!ok2) {
+        showToast("Could not find better subset re-roll. Try different selection.", "error");
+        return;
+      }
+      renderPreviewTable(previewParticipants, previewAssignments);
+      showToast("Selected preview rows re-rolled.", "success");
+    }
+  } catch (err) {
+    console.error(err);
+    showToast("Error generating preview assignments.", "error");
+  }
+});
+
+commitAssignmentsBtn.addEventListener('click', async () => {
+  const ok = await isApprovedAdmin(auth.currentUser);
+  if (!ok) {
+    showToast("Not authorized.", "error");
+    return;
+  }
+
+  if (!previewParticipants || !previewAssignments) {
+    showToast("No preview assignments to commit. Generate a preview first.", "error");
+    return;
+  }
+
+  const confirmed = await showModal(
+    'Commit Assignments',
+    'This will save the current preview assignments and enable the reveal page. Sign-ups will effectively be closed. Continue?',
+    'Commit',
+    'Cancel'
+  );
+  
+  if (!confirmed) return;
+
+  try {
+    const batch = db.batch();
+
+    previewAssignments.forEach(a => {
+      const from = previewParticipants[a.fromIndex];
+      const to = previewParticipants[a.toIndex];
+      const ref = db.collection("signups").doc(from.id);
+      batch.update(ref, {
+        assignedToId: to.id,
+        assignedToName: to.name,
+        assignedToAddressFull: to.addressFull,
+        assignedToState: to.stateCode,
+        assignedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    });
+
+    const settingsRef = db.collection("settings").doc("global");
+    batch.set(settingsRef, {
+      revealEnabled: true,
+      lastAssignmentsAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+
+    await batch.commit();
+
+    showToast("Assignments committed and reveal enabled!", "success");
+  } catch (err) {
+    console.error(err);
+    showToast("Error committing assignments: " + (err.code || "unknown"), "error");
+  }
+});
+
+clearAllBtn.addEventListener('click', async () => {
+  const ok = await isApprovedAdmin(auth.currentUser);
+  if (!ok) {
+    showToast("Not authorized.", "error");
+    return;
+  }
+
+  const confirmed = await showModal(
+    'Clear All Sign-Ups',
+    'This will delete ALL sign-ups and reset reveal settings. Only do this if you want to completely reset the swap. Are you sure?',
+    'Clear All',
+    'Cancel'
+  );
+  
+  if (!confirmed) return;
+
+  try {
+    const snap = await db.collection("signups").get();
+    const batch = db.batch();
+
+    snap.forEach(doc => {
+      batch.delete(doc.ref);
+    });
+
+    const settingsRef = db.collection("settings").doc("global");
+    batch.set(settingsRef, {
+      revealEnabled: false,
+      lastAssignmentsAt: null
+    }, { merge: true });
+
+    await batch.commit();
+
+    previewTableBody.innerHTML = '<tr><td colspan="4" class="no-data">Click "Preview Assignments" to generate</td></tr>';
+    previewParticipants = null;
+    previewAssignments = null;
+    selectedPreviewFromIndices.clear();
+
+    showToast("All sign-ups cleared and swap reset.", "success");
+  } catch (err) {
+    console.error(err);
+    showToast("Error clearing sign-ups: " + (err.code || "unknown"), "error");
+  }
+});
+
+function openPayment(method) {
+  const links = {
+    "PayPal": "https://paypal.me/donnapevey1",
+    "Cash App": "https://cash.app/$donnapevey",
+    "Venmo": "https://venmo.com/u/Donnapevey00"
+  };
+
+  const url = links[method];
+  if (url) {
+    window.open(url, "_blank", "noopener,noreferrer");
+  } else {
+    showToast("Payment link not set for: " + method, "error");
+  }
+}
+
+// ===== INITIALIZE =====
+document.addEventListener('DOMContentLoaded', () => {
+  initTabs();
+  
+  // Setup search
+  setupTableSearch('publicSearch', 'publicTableBody');
+  setupTableSearch('adminSearch', 'adminTableBody', (row) => {
+    return row.textContent.toLowerCase();
+  });
+  
+  // Bind admin buttons
+  document.getElementById('adminLoginBtn').addEventListener('click', adminLogin);
+  document.getElementById('adminLogoutBtn').addEventListener('click', adminLogout);
+  
+  setAdminUI({ signedIn: false, authorized: false });
+});
+</script>
+</body>
+</html>
