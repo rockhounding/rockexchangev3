@@ -1468,53 +1468,29 @@ signupForm.addEventListener('submit', async (e) => {
 
   const addressFull = `${street}, ${city}, ${stateCode} ${zip}`;
 
-  async function addSignupWithUniqueCode(data) {
-  const normalizedCode = String(data.code).trim().toUpperCase();
-
-  const codeRef = db.collection("codes").doc(normalizedCode);
-  const signupRef = db.collection("signups").doc();
-
-  await db.runTransaction(async (tx) => {
-    const codeSnap = await tx.get(codeRef);
-    if (codeSnap.exists) {
-      throw new Error("That code is already taken. Choose another.");
-    }
-
-    tx.set(codeRef, {
+  try {
+    await db.collection("signups").add({
+      name,
+      addressStreet: street,
+      addressCity: city,
+      addressStateCode: stateCode,
+      addressZip: zip,
+      addressFull,
+      state: stateCode,
+      code,
+      paymentMethod: payment,
+      depositSent: false,
+      depositApproved: false,
+      trackingNumber: "",
+      trackingSubmitted: false,
+      trackingSubmittedAt: null,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      signupId: signupRef.id
+      assignedToId: null,
+      assignedToName: null,
+      assignedToAddressFull: null,
+      assignedToState: null,
+      assignedAt: null
     });
-
-    tx.set(signupRef, {
-      ...data,
-      code: normalizedCode
-    });
-  });
-}
-
-try {
-  await addSignupWithUniqueCode({
-    name,
-    addressStreet: street,
-    addressCity: city,
-    addressStateCode: stateCode,
-    addressZip: zip,
-    addressFull,
-    state: stateCode,
-    code,
-    paymentMethod: payment,
-    depositSent: false,
-    depositApproved: false,
-    trackingNumber: "",
-    trackingSubmitted: false,
-    trackingSubmittedAt: null,
-    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    assignedToId: null,
-    assignedToName: null,
-    assignedToAddressFull: null,
-    assignedToState: null,
-    assignedAt: null
-  });
 
     showToast("✅ Sign-up successful! Redirecting to payment...", "success");
 
