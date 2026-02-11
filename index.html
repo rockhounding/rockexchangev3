@@ -906,7 +906,7 @@
 
         <div>
           <label for="signupCode">Your 4-digit Code (choose a unique one)</label>
-          <input id="signupCode" type="text" maxlength="8" autocomplete="off" inputmode="numeric" placeholder="AB12">
+          <input id="signupCode" type="text" maxlength="8" autocomplete="off" inputmode="numeric" placeholder="1234">
         </div>
 
         <div>
@@ -1468,8 +1468,33 @@ signupForm.addEventListener('submit', async (e) => {
 
   const addressFull = `${street}, ${city}, ${stateCode} ${zip}`;
 
+  // ---- UNIQUE CODE SIGNUP (adds lock doc in /codes/{CODE}) ----
+  async function addSignupWithUniqueCode(data) {
+    const normalizedCode = String(data.code).trim().toUpperCase();
+
+    const codeRef = db.collection("codes").doc(normalizedCode);
+    const signupRef = db.collection("signups").doc();
+
+    await db.runTransaction(async (tx) => {
+      const codeSnap = await tx.get(codeRef);
+      if (codeSnap.exists) {
+        throw new Error("CODE_TAKEN");
+      }
+
+      tx.set(codeRef, {
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        signupId: signupRef.id
+      });
+
+      tx.set(signupRef, {
+        ...data,
+        code: normalizedCode
+      });
+    });
+  }
+
   try {
-    await db.collection("signups").add({
+    await addSignupWithUniqueCode({
       name,
       addressStreet: street,
       addressCity: city,
@@ -1502,7 +1527,13 @@ signupForm.addEventListener('submit', async (e) => {
 
   } catch (err) {
     console.error(err);
-    showToast("Error saving sign-up. Please try again.", "error");
+
+    const msg = String(err && err.message ? err.message : "");
+    if (msg === "CODE_TAKEN") {
+      showToast("That code is already taken. Choose another.", "error");
+    } else {
+      showToast("Error saving sign-up. Please try again.", "error");
+    }
   }
 });
 
@@ -2209,9 +2240,16 @@ clearAllBtn.addEventListener('click', async () => {
     selectedPreviewFromIndices.clear();
 
     showToast("All sign-ups cleared and swap reset.", "success");
+    
   } catch (err) {
     console.error(err);
-    showToast("Error clearing sign-ups: " + (err.code || "unknown"), "error");
+
+    const msg = String(err && err.message ? err.message : "");
+    if (msg.includes("Already exists") || msg.includes("already exists")) {
+    showToast("That code is already taken. Choose another.", "error");
+    } else {
+      showToast("Error saving sign-up. Please try again.", "error");
+    }
   }
 });
 
