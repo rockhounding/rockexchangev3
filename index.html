@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -923,6 +922,15 @@
           You will be redirected to your chosen deposit method after sign up.
         </div>
 
+        <div>
+          <label for="signupTip">Optional Tip (adds to the $10 deposit)</label>
+          <input id="signupTip" type="text" inputmode="decimal" autocomplete="off" placeholder="0">
+          <div class="small-note" style="text-align:left;margin-top:8px;">
+            Total = $10 + tip(optional)
+        </div>
+
+        </div>
+
         <div style="text-align:center;">
           <button type="submit">✅ Submit Sign Up</button>
         </div>
@@ -1449,6 +1457,7 @@ signupForm.addEventListener('submit', async (e) => {
   const zip = document.getElementById('signupZip').value.trim();
   const codeRaw = document.getElementById('signupCode').value.trim();
   const payment = document.getElementById('signupPay').value;
+  const tipRaw = document.getElementById('signupTip') ? document.getElementById('signupTip').value.trim() : "";
 
   const code = codeRaw.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 4);
 
@@ -1456,6 +1465,23 @@ signupForm.addEventListener('submit', async (e) => {
     showToast("Please fill in all fields (name, full address, code, payment method).", "error");
     return;
   }
+
+  // Tip (optional)
+  let tip = 0;
+  if (tipRaw) {
+    // allow "3", "3.00", "$3", etc.
+    const cleaned = tipRaw.replace(/[^0-9.]/g, "");
+    tip = Number(cleaned);
+    if (!Number.isFinite(tip) || tip < 0) {
+      showToast("Tip must be a number like 0, 3, or 5.", "error");
+      return;
+    }
+    // keep it sane
+    tip = Math.round(tip * 100) / 100;
+  }
+
+const deposit = 10;
+const totalAmount = Math.round((deposit + tip) * 100) / 100;
 
   if (code.length !== 4) {
     showToast("Code must be exactly 4 characters (A-Z / 0-9). Example: AB12", "error");
@@ -1523,7 +1549,7 @@ signupForm.addEventListener('submit', async (e) => {
     signupForm.style.display = 'none';
     showSignupBtn.style.display = 'inline-block';
 
-    setTimeout(() => openPayment(payment), 1000);
+    setTimeout(() => openPayment(payment, totalAmount, tip), 1000);
 
   } catch (err) {
     console.error(err);
@@ -2253,10 +2279,28 @@ clearAllBtn.addEventListener('click', async () => {
   }
 });
 
-function openPayment(method) {
+function openPayment(method, totalAmount = 10, tip = 0) {
+  const amountStr = (Number(totalAmount) || 10).toFixed(2);
+
+  // You can edit these 2 identifiers if needed
+  const PAYPAL_ME = "donnapevey1";
+  const VENMO_RECIPIENT = "Donna-Pevey";
+
+  const note =
+    tip > 0
+      ? `RockExchange deposit ($10) + tip ($${Number(tip).toFixed(2)})`
+      : "RockExchange deposit ($10)";
+
   const links = {
-    "PayPal": "https://www.paypal.me/donnapevey1/10",    
-    "Venmo": "https://venmo.com/?txn=pay&recipients=Donna-Pevey&amount=10&note=RockExchange%20deposit"
+    // PayPal.me supports /<amount>
+    "PayPal": `https://www.paypal.me/${encodeURIComponent(PAYPAL_ME)}/${encodeURIComponent(amountStr)}`,
+
+    // Venmo supports amount + note in query string
+    "Venmo":
+      `https://venmo.com/?txn=pay` +
+      `&recipients=${encodeURIComponent(VENMO_RECIPIENT)}` +
+      `&amount=${encodeURIComponent(amountStr)}` +
+      `&note=${encodeURIComponent(note)}`
   };
 
   const url = links[method];
