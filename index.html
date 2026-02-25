@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -913,7 +914,8 @@
           <label for="signupPay">Deposit Payment Method</label>
           <select id="signupPay">
             <option value="">-- Select --</option>
-            <option value="PayPal">PayPal</option>        
+            <option value="PayPal">PayPal</option>
+            <option value="Cash App">Cash App</option>
             <option value="Venmo">Venmo</option>
           </select>
         </div>
@@ -2254,8 +2256,9 @@ clearAllBtn.addEventListener('click', async () => {
 
 function openPayment(method) {
   const links = {
-    "PayPal": "Robertsfamily0209@outlook.com,
-    "Venmo": "https://venmo.com/u/Donna-Pevey"
+    "PayPal": "https://paypal.me/donnapevey1",
+    "Cash App": "https://cash.app/$donnapevey",
+    "Venmo": "https://venmo.com/u/Donnapevey00"
   };
 
   const url = links[method];
