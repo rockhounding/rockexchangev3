@@ -768,6 +768,21 @@
   .hidden {
     display: none !important;
   }
+
+  /* GOLD OUTLINE FOR 4-DIGIT CODE INPUT */
+  #signupCode {
+    border: 2px solid #d4af37; /* gold */
+    box-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+  
+  /* Make it glow stronger when clicked */
+  #signupCode:focus {
+    outline: none;
+    border: 2px solid #ffd700;
+    box-shadow: 0 0 12px rgba(255, 215, 0, 0.8);
+  }
 </style>
 </head>
 
