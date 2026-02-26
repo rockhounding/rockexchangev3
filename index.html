@@ -944,13 +944,6 @@
           You will be redirected to your chosen deposit method after sign up.
         </div>
 
-        <div>
-          <label for="signupTip">Optional Tip (adds to the $10 deposit)</label>
-          <input id="signupTip" type="text" inputmode="decimal" autocomplete="off" placeholder="0">
-          <div class="small-note" style="text-align:left;margin-top:8px;">
-            Total = $10 + tip(optional)
-        </div>
-
         </div>
 
         <div style="text-align:center;">
@@ -1016,19 +1009,15 @@
                 <th>State</th>
                 <th>Code</th>
                 <th>Pay Method</th>
-                <th>Tip</th>
                 <th>Status</th>
                 <th>Tracking #</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody id="adminTableBody">
-              <tr><td colspan="10" class="no-data">Loading...</td></tr>
+              <tr><td colspan="9" class="no-data">Loading...</td></tr>
             </tbody>
           </table>
-          <div class="small-note" style="text-align:right; margin-top: 10px;">
-            <strong>Total Tips:</strong> $<span id="adminTipsTotal">0.00</span>
-          </div>
         </div>
       </div>
 
@@ -1688,7 +1677,7 @@ async function revealMatch() {
       `<div style="margin-top:6px;">For this Rock Exchange, you'll be sending rocks to:</div>` +
       `<div style="margin-top:6px;padding-left:8px;"><strong>${toName}</strong><br>${toAddr}</div>` +
       `<div style="margin-top:10px;font-size:12px;color:#475569;">` +
-      `Please mail your box on or before March 21. Submit a valid tracking number and I will refund your deposit.` +
+      `Please mail your box on or before Dec. 12. Submit a valid tracking number and I will refund your deposit.` +
       `</div>` +
       `<div style="margin-top:6px;font-size:12px;color:#475569;">` +
       `Thank you for being part of this Exchange!` +
@@ -1761,7 +1750,6 @@ db.collection("signups")
     let approvedCount = 0;
     let pendingCount = 0;
     let trackingCount = 0;
-    let tipsTotal = 0;
 
     snapshot.forEach(doc => {
       idx++;
@@ -1776,9 +1764,6 @@ db.collection("signups")
       const trackingNumber = d.trackingNumber || "";
       const addressFull = d.addressFull || d.address || "";
       const code = d.code || "";
-
-      const tipAmount = Number(d.tipAmount || 0);
-      if (Number.isFinite(tipAmount) && tipAmount > 0) tipsTotal += tipAmount;
 
       if (depositApproved) approvedCount++;
       else pendingCount++;
@@ -1831,7 +1816,7 @@ db.collection("signups")
 
     adminTableBody.innerHTML = "";
     if (rowsAdmin.length === 0) {
-      adminTableBody.innerHTML = '<tr><td colspan="10" class="no-data">No sign-ups yet</td></tr>';
+      adminTableBody.innerHTML = '<tr><td colspan="9" class="no-data">No sign-ups yet</td></tr>';
     } else {
       rowsAdmin.forEach(r => adminTableBody.appendChild(r));
     }
@@ -1841,7 +1826,6 @@ db.collection("signups")
     document.getElementById('statApproved').textContent = approvedCount;
     document.getElementById('statPending').textContent = pendingCount;
     document.getElementById('statTracking').textContent = trackingCount;
-    document.getElementById('adminTipsTotal').textContent = tipsTotal.toFixed(2);
 
   }, (err) => {
     console.error("Error listening to signups:", err);
@@ -2318,7 +2302,7 @@ function openPayment(method, totalAmount = 10, tip = 0) {
   const amountStr = (Number(totalAmount) || 10).toFixed(2);
 
   // You can edit these 2 identifiers if needed
-  const PAYPAL_ME = "donnapevey0209";
+  const PAYPAL_ME = "robertsfamily0209";
   const VENMO_RECIPIENT = "Donna-Pevey";
 
   const note =
