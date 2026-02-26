@@ -768,21 +768,6 @@
   .hidden {
     display: none !important;
   }
-
-  /* GOLD OUTLINE FOR 4-DIGIT CODE INPUT */
-  #signupCode {
-    border: 2px solid #d4af37; /* gold */
-    box-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
-    font-weight: 600;
-    transition: all 0.2s ease;
-  }
-  
-  /* Make it glow stronger when clicked */
-  #signupCode:focus {
-    outline: none;
-    border: 2px solid #ffd700;
-    box-shadow: 0 0 12px rgba(255, 215, 0, 0.8);
-  }
 </style>
 </head>
 
@@ -921,14 +906,7 @@
 
         <div>
           <label for="signupCode">Your 4-digit Code (choose a unique one)</label>
-          <input 
-            id="signupCode"
-            type="text"
-            maxlength="4"
-            inputmode="numeric"
-            autocomplete="off"
-            name="exchange_code"
-          >
+          <input id="signupCode" type="text" maxlength="8" autocomplete="off" inputmode="numeric" placeholder="1234">
         </div>
 
         <div>
@@ -942,8 +920,6 @@
 
         <div class="small-note" style="margin:16px 0 20px 0;">
           You will be redirected to your chosen deposit method after sign up.
-        </div>
-
         </div>
 
         <div style="text-align:center;">
@@ -1479,9 +1455,6 @@ signupForm.addEventListener('submit', async (e) => {
     showToast("Please fill in all fields (name, full address, code, payment method).", "error");
     return;
   }
-  
-const deposit = 10;
-const totalAmount = Math.round((deposit + tip) * 100) / 100;
 
   if (code.length !== 4) {
     showToast("Code must be exactly 4 characters (A-Z / 0-9). Example: AB12", "error");
@@ -1532,8 +1505,6 @@ const totalAmount = Math.round((deposit + tip) * 100) / 100;
       paymentMethod: payment,
       depositSent: false,
       depositApproved: false,
-      depositAmount: deposit,
-      paymentTotal: totalAmount,
       trackingNumber: "",
       trackingSubmitted: false,
       trackingSubmittedAt: null,
@@ -1551,7 +1522,7 @@ const totalAmount = Math.round((deposit + tip) * 100) / 100;
     signupForm.style.display = 'none';
     showSignupBtn.style.display = 'inline-block';
 
-    setTimeout(() => openPayment(payment, totalAmount, tip), 1000);
+    setTimeout(() => openPayment(payment), 1000);
 
   } catch (err) {
     console.error(err);
@@ -2281,28 +2252,10 @@ clearAllBtn.addEventListener('click', async () => {
   }
 });
 
-function openPayment(method, totalAmount = 10, tip = 0) {
-  const amountStr = (Number(totalAmount) || 10).toFixed(2);
-
-  // You can edit these 2 identifiers if needed
-  const PAYPAL_ME = "donnapevey0209";
-  const VENMO_RECIPIENT = "Donna-Pevey";
-
-  const note =
-    tip > 0
-      ? `RockExchange deposit ($10) + tip ($${Number(tip).toFixed(2)})`
-      : "RockExchange deposit ($10)";
-
+function openPayment(method) {
   const links = {
-    // PayPal.me supports /<amount>
-    "PayPal": `https://www.paypal.me/${encodeURIComponent(PAYPAL_ME)}/${encodeURIComponent(amountStr)}`,
-
-    // Venmo supports amount + note in query string
-    "Venmo":
-      `https://venmo.com/?txn=pay` +
-      `&recipients=${encodeURIComponent(VENMO_RECIPIENT)}` +
-      `&amount=${encodeURIComponent(amountStr)}` +
-      `&note=${encodeURIComponent(note)}`
+    "PayPal": "https://www.paypal.me/donnapevey1/10",    
+    "Venmo": "https://venmo.com/?txn=pay&recipients=Donna-Pevey&amount=10&note=RockExchange%20deposit"
   };
 
   const url = links[method];
