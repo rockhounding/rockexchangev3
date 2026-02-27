@@ -865,7 +865,7 @@
   <!-- Tab Content: Sign Up -->
   <div class="tab-content" id="signupContent">
     <div class="card">
-      <h2>Sign Up for the Exchange</h2>
+      <h2 id="signupTitle">Sign Up for the Exchange</h2>
       <div id="signupIntro">
         <button id="showSignupBtn" type="button">📝 Sign Up for This Exchange</button>
       </div>
@@ -1532,7 +1532,10 @@ signupForm.addEventListener('submit', async (e) => {
 
     signupForm.reset();
     signupForm.style.display = 'none';
-    showSignupBtn.style.display = 'inline-block';
+    
+    // Hide the signup button + title so the Thank You/payment instructions are the only thing shown
+    document.getElementById('signupIntro').style.display = 'none';
+    document.getElementById('signupTitle').style.display = 'none';
 
     // Show instructions instead of auto-opening a new tab (avoids popup blockers)
     renderPaymentInstructions(payment);
