@@ -934,10 +934,6 @@
           </select>
         </div>
 
-        <div class="small-note" style="margin:16px 0 20px 0;">
-          You will be redirected to your chosen deposit method after sign up.
-        </div>
-
         <div style="text-align:center;">
           <button type="submit">✅ Submit Sign Up</button>
         </div>
@@ -1532,13 +1528,14 @@ signupForm.addEventListener('submit', async (e) => {
       assignedAt: null
     });
 
-    showToast("✅ Sign-up successful! Redirecting to payment...", "success");
+    showToast("✅ Sign-up successful! Please send your $10 refundable deposit using the instructions below.", "success");
 
     signupForm.reset();
     signupForm.style.display = 'none';
     showSignupBtn.style.display = 'inline-block';
 
-    setTimeout(() => openPayment(payment), 1000);
+    // Show instructions instead of auto-opening a new tab (avoids popup blockers)
+    renderPaymentInstructions(payment);
 
   } catch (err) {
     console.error(err);
@@ -2268,13 +2265,16 @@ clearAllBtn.addEventListener('click', async () => {
   }
 });
 
-function openPayment(method) {
+function getPaymentUrl(method) {
   const links = {
-    "PayPal": "https://www.paypal.me/donnapevey0209/10",    
+    "PayPal": "https://www.paypal.me/donnapevey0209/10",
     "Venmo": "https://venmo.com/?txn=pay&recipients=Donna-Pevey&amount=10&note=RockExchange%20deposit"
   };
+  return links[method] || "";
+}
 
-  const url = links[method];
+function openPayment(method) {
+  const url = getPaymentUrl(method);
   if (url) {
     window.open(url, "_blank", "noopener,noreferrer");
   } else {
@@ -2282,6 +2282,78 @@ function openPayment(method) {
   }
 }
 
+function renderPaymentInstructions(method) {
+  const url = getPaymentUrl(method);
+  const safeMethod = String(method || "Payment").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+  signupStatus.className = "status";
+
+  // If method isn't set or unknown, show a friendly fallback
+  if (!url) {
+    signupStatus.innerHTML = `
+      <div class="card" style="margin-top:16px;">
+        <h3 style="margin:0 0 10px 0; text-align:center;">Thank You</h3>
+        <p style="margin:0; text-align:center;">
+          for signing up for the rockexchange please send your <b>$10 refundable deposit</b>
+        </p>
+      </div>
+    `;
+    return;
+  }
+
+  signupStatus.innerHTML = `
+    <div class="card" style="margin-top:16px;">
+      <h3 style="margin:0 0 10px 0; text-align:center;">Thank You</h3>
+      <p style="margin:0 0 14px 0; text-align:center;">
+        for signing up for the rockexchange please send your <b>$10 refundable deposit</b>
+      </p>
+
+      <p style="margin:0 0 14px 0; text-align:center;">
+        Payment method selected: <b>${safeMethod}</b>
+      </p>
+
+      <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:12px;">
+        <button type="button" id="payNowBtn" style="min-width:240px;">
+          Open ${safeMethod} Payment Page
+        </button>
+        <button type="button" id="copyPayLinkBtn" class="btn-secondary" style="min-width:240px;">
+          Copy Payment Link
+        </button>
+      </div>
+
+      <div style="display:flex; justify-content:center;">
+        <input type="text" id="payLinkBox" value="${url}" readonly style="width:100%; max-width:520px;" />
+      </div>
+
+      <p style="margin:12px 0 0 0; color:#6b7280; font-size:13px; text-align:center;">
+        If nothing opens, your browser may be blocking popups. Use “Copy Payment Link” and paste it into your browser.
+      </p>
+    </div>
+  `;
+
+  // Button handlers (attach after innerHTML)
+  const payNowBtn = document.getElementById("payNowBtn");
+  const copyBtn = document.getElementById("copyPayLinkBtn");
+  const linkBox = document.getElementById("payLinkBox");
+
+  if (payNowBtn) {
+    payNowBtn.addEventListener("click", () => openPayment(method));
+  }
+
+  if (copyBtn && linkBox) {
+    copyBtn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(linkBox.value);
+        showToast("Payment link copied!", "success");
+      } catch (e) {
+        linkBox.focus();
+        linkBox.select();
+        document.execCommand("copy");
+        showToast("Payment link copied!", "success");
+      }
+    });
+  }
+}
 // ===== INITIALIZE =====
 document.addEventListener('DOMContentLoaded', () => {
   initTabs();
