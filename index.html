@@ -778,6 +778,65 @@
   transition: all 0.2s ease;
 }
 
+  /* Anchor buttons (so <a class="btn"> looks like a real button) */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    text-decoration: none;
+    color: #ffffff;
+    background: #3b82f6;
+    box-shadow: 0 3px 8px rgba(59, 130, 246, 0.25);
+    min-height: 44px;
+  }
+
+  .btn:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+    box-shadow: 0 5px 14px rgba(37, 99, 235, 0.35);
+  }
+
+  .btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.30);
+  }
+
+  .btn-paypal {
+    background: #0070ba; /* PayPal blue */
+    box-shadow: 0 3px 8px rgba(0, 112, 186, 0.25);
+  }
+  .btn-paypal:hover { background: #005ea6; }
+
+  .btn-venmo {
+    background: #3d95ce; /* Venmo blue */
+    box-shadow: 0 3px 8px rgba(61, 149, 206, 0.25);
+  }
+  .btn-venmo:hover { background: #2f82b8; }
+
+  /* Clickable admin headers */
+  th.clickable-header {
+    cursor: pointer;
+    user-select: none;
+  }
+  th.clickable-header:hover {
+    color: #111827;
+    text-decoration: underline;
+  }
+  .sort-indicator {
+    font-size: 12px;
+    margin-left: 6px;
+    color: #6b7280;
+  }
+
+
+
 /* Make it glow stronger when clicked */
 #signupCode:focus {
   outline: none;
@@ -798,6 +857,7 @@
   <div class="tabs">
     <button class="tab active" data-tab="public">Public List</button>
     <button class="tab" data-tab="signup" id="signupTab">Sign Up</button>
+    <button class="tab" data-tab="payments" id="paymentsTab">Payments</button>
     <button class="tab" data-tab="reveal" id="revealTab">Reveal Match</button>
     <button class="tab" data-tab="admin" id="adminTab">Admin</button>
   </div>
@@ -943,7 +1003,20 @@
     </div>
   </div>
 
-  <!-- Tab Content: Admin -->
+  
+  <!-- Tab Content: Payments -->
+  <div class="tab-content" id="paymentsContent">
+    <div class="card">
+      <h2>💳 Payments</h2>
+      <p style="color:#6b7280; margin-bottom:16px;">
+        Pay your <b>$10 refundable deposit</b> anytime using the buttons below.</p>
+
+      <div id="paymentsStatus" class="status"></div>
+      <div id="paymentsDefault" class="status"></div>
+    </div>
+  </div>
+
+<!-- Tab Content: Admin -->
   <div class="tab-content" id="adminContent">
     <!-- Admin Login -->
     <div class="card" id="adminLoginCard">
@@ -988,20 +1061,22 @@
           <input type="search" id="adminSearch" placeholder="Search by name, code, or address...">
         </div>
         <div class="table-wrapper">
-          <table class="list-table" id="adminTable">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Name</th>
-                <th>Address</th>
-                <th>State</th>
-                <th>Code</th>
-                <th>Pay Method</th>
-                <th>Status</th>
-                <th>Tracking #</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
+          
+<table class="list-table" id="adminTable">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th class="clickable-header" data-adminkey="name">Name <span class="sort-indicator" id="si_name"></span></th>
+      <th>Address</th>
+      <th class="clickable-header" data-adminkey="state">State <span class="sort-indicator" id="si_state"></span></th>
+      <th class="clickable-header" data-adminkey="code">Code <span class="sort-indicator" id="si_code"></span></th>
+      <th class="clickable-header" data-adminkey="paymentMethod">Pay Method <span class="sort-indicator" id="si_paymentMethod"></span></th>
+      <th class="clickable-header" data-adminkey="status">Status <span class="sort-indicator" id="si_status"></span></th>
+      <th class="clickable-header" data-adminkey="trackingNumber">Tracking # <span class="sort-indicator" id="si_trackingNumber"></span></th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+
             <tbody id="adminTableBody">
               <tr><td colspan="9" class="no-data">Loading...</td></tr>
             </tbody>
@@ -1528,19 +1603,27 @@ signupForm.addEventListener('submit', async (e) => {
       assignedAt: null
     });
 
-    showToast("✅ Sign-up successful! Please send your $10 refundable deposit using the instructions below.", "success");
+    showToast("✅ Sign-up successful! Next: pay your $10 refundable deposit on the Payments tab.", "success");
 
     signupForm.reset();
     signupForm.style.display = 'none';
-    
-    // Hide the signup button + title so the Thank You/payment instructions are the only thing shown
-    document.getElementById('signupIntro').style.display = 'none';
-    document.getElementById('signupTitle').style.display = 'none';
+    showSignupBtn.style.display = 'block';
+    document.getElementById('signupIntro').style.display = 'block';
+    document.getElementById('signupTitle').style.display = 'block';
 
-    // Show instructions instead of auto-opening a new tab (avoids popup blockers)
-    renderPaymentInstructions(payment);
+    // Give a simple confirmation on the Sign Up tab, then take them to Payments
+    signupStatus.innerHTML = `
+      <div class="card" style="margin-top:16px;">
+        <h3 style="margin:0 0 10px 0; text-align:center;">Sign-up complete ✅</h3>
+        <p style="margin:0; text-align:center;">
+          Next: pay your <b>$10 refundable deposit</b> on the <b>Payments</b> tab.
+        </p>
+      </div>
+    `;
 
-  } catch (err) {
+    goToPayments(payment);
+
+} catch (err) {
     console.error(err);
 
     const msg = String(err && err.message ? err.message : "");
@@ -1711,6 +1794,147 @@ const adminTableBody = document.getElementById('adminTableBody');
 
 let allSignups = [];
 
+let adminView = {
+  mode: "sort",          // "sort" or "group"
+  key: "createdAt",      // field
+  dir: 1                // 1 = asc, -1 = desc
+};
+
+function setAdminView(key) {
+  // Clicking Name/State/Code/Tracking sorts A-Z then Z-A
+  // Clicking Status groups Approved/Pending
+  // Clicking Pay Method groups PayPal/Venmo/—
+  const groupKeys = new Set(["status", "paymentMethod"]);
+  if (groupKeys.has(key)) {
+    // Toggle group order if clicking the same group key
+    if (adminView.mode === "group" && adminView.key === key) adminView.dir *= -1;
+    else { adminView.mode = "group"; adminView.key = key; adminView.dir = 1; }
+  } else {
+    if (adminView.mode === "sort" && adminView.key === key) adminView.dir *= -1;
+    else { adminView.mode = "sort"; adminView.key = key; adminView.dir = 1; }
+  }
+  renderAdminFromState(allSignups);
+  updateAdminSortIndicators();
+}
+
+function normalizeStr(v) {
+  return String(v || "").trim().toLowerCase();
+}
+
+function renderAdminFromState(list) {
+  const body = document.getElementById("adminTableBody");
+  if (!body) return;
+  body.innerHTML = "";
+
+  const arr = Array.isArray(list) ? [...list] : [];
+
+  function buildRow(item, idxDisplay) {
+    const name = item.name || "";
+    const stateCode = item.addressStateCode || item.state || "";
+    const pm = item.paymentMethod || "";
+    const depositApproved = !!item.depositApproved;
+    const trackingNumber = item.trackingNumber || "";
+    const addressFull = item.addressFull || item.address || "";
+    const code = item.code || "";
+
+    const tr = document.createElement("tr");
+    tr.setAttribute("data-id", item.id);
+    tr.innerHTML = `
+      <td>${idxDisplay}</td>
+      <td>${name}</td>
+      <td style="max-width:260px;white-space:normal;">${addressFull}</td>
+      <td>${stateCode}</td>
+      <td>${code || "—"}</td>
+      <td>${pm || "—"}</td>
+      <td>
+        <span class="badge clickable ${depositApproved ? "badge-approved" : "badge-not-approved"}" data-action="approve">
+          ${depositApproved ? "Approved" : "Approve"}
+        </span>
+      </td>
+      <td>${trackingNumber ? trackingNumber : "—"}</td>
+      <td>
+        <button class="btn-small btn-danger" type="button" data-action="delete">Delete</button>
+      </td>
+    `;
+    return tr;
+  }
+
+  const key = adminView.key;
+  const dir = adminView.dir;
+
+  if (adminView.mode === "group") {
+    // Group buckets
+    let buckets = [];
+    if (key === "status") {
+      const approved = arr.filter(x => !!x.depositApproved);
+      const pending  = arr.filter(x => !x.depositApproved);
+      buckets = dir === 1 ? [approved, pending] : [pending, approved];
+    } else if (key === "paymentMethod") {
+      const paypal = arr.filter(x => normalizeStr(x.paymentMethod) === "paypal");
+      const venmo  = arr.filter(x => normalizeStr(x.paymentMethod) === "venmo");
+      const other  = arr.filter(x => !["paypal","venmo"].includes(normalizeStr(x.paymentMethod)));
+      buckets = dir === 1 ? [paypal, venmo, other] : [other, venmo, paypal];
+    } else {
+      buckets = [arr];
+    }
+
+    // Sort within each bucket by name A-Z
+    let idx = 0;
+    buckets.forEach(bucket => {
+      bucket.sort((a,b)=> normalizeStr(a.name).localeCompare(normalizeStr(b.name)));
+      bucket.forEach(item => {
+        idx++;
+        body.appendChild(buildRow(item, idx));
+      });
+    });
+
+  } else {
+    // Sort mode
+    arr.sort((a,b) => {
+      if (key === "createdAt") {
+        const av = a.createdAt?.seconds || 0;
+        const bv = b.createdAt?.seconds || 0;
+        return (av - bv) * dir;
+      }
+      if (key === "status") {
+        const av = a.depositApproved ? 1 : 0;
+        const bv = b.depositApproved ? 1 : 0;
+        return (av - bv) * dir;
+      }
+      const av = normalizeStr(a[key] || (key==="state" ? (a.addressStateCode||a.state||"") : ""));
+      const bv = normalizeStr(b[key] || (key==="state" ? (b.addressStateCode||b.state||"") : ""));
+      return av.localeCompare(bv) * dir;
+    });
+
+    arr.forEach((item, i) => body.appendChild(buildRow(item, i+1)));
+  }
+}
+
+function updateAdminSortIndicators() {
+  const keys = ["name","state","code","paymentMethod","status","trackingNumber"];
+  keys.forEach(k => {
+    const el = document.getElementById("si_" + k);
+    if (!el) return;
+    el.textContent = "";
+    if (adminView.key === k) {
+      if (adminView.mode === "group") el.textContent = adminView.dir === 1 ? " (group)" : " (group rev)";
+      else el.textContent = adminView.dir === 1 ? " ▲" : " ▼";
+    }
+  });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Make admin headers clickable for sorting/grouping
+  document.querySelectorAll("#adminTable thead th.clickable-header").forEach(th => {
+    th.addEventListener("click", () => {
+      const key = th.getAttribute("data-adminkey");
+      if (key) setAdminView(key);
+    });
+  });
+  updateAdminSortIndicators();
+});
+
+
 db.collection("signups")
   .orderBy("createdAt", "asc")
   .onSnapshot((snapshot) => {
@@ -1777,21 +2001,22 @@ db.collection("signups")
       rowsAdmin.push(trAdmin);
     });
 
-    publicTableBody.innerHTML = "";
+    publicTableBodyinnerHTML = "";
     if (rowsPublic.length === 0) {
       publicTableBody.innerHTML = '<tr><td colspan="4" class="no-data">No sign-ups yet</td></tr>';
     } else {
       rowsPublic.forEach(r => publicTableBody.appendChild(r));
     }
 
-    adminTableBody.innerHTML = "";
-    if (rowsAdmin.length === 0) {
-      adminTableBody.innerHTML = '<tr><td colspan="9" class="no-data">No sign-ups yet</td></tr>';
-    } else {
-      rowsAdmin.forEach(r => adminTableBody.appendChild(r));
-    }
-
-    // Update stats
+    
+adminTableBody.innerHTML = "";
+if (rowsAdmin.length === 0) {
+  adminTableBody.innerHTML = '<tr><td colspan="9" class="no-data">No sign-ups yet</td></tr>';
+} else {
+  // Render using current admin sort/group settings
+  renderAdminFromState(allSignups);
+}
+// Update stats
     document.getElementById('statTotal').textContent = idx;
     document.getElementById('statApproved').textContent = approvedCount;
     document.getElementById('statPending').textContent = pendingCount;
@@ -2268,13 +2493,112 @@ clearAllBtn.addEventListener('click', async () => {
   }
 });
 
+
+
+
+
+// Transient flag: only true immediately after a successful sign-up (resets on refresh/close).
+let justSignedUp = false;
+
+function renderPaymentsHome(showThankYou = false) {
+  const paymentsDefault = document.getElementById("paymentsDefault");
+  const paymentsStatus = document.getElementById("paymentsStatus");
+  if (!paymentsDefault) return;
+
+  // We never show a "selected method" / preferred-method block.
+  if (paymentsStatus) paymentsStatus.innerHTML = "";
+
+  // "Correct place to pay" WITHOUT prefilling amount/note:
+  // - PayPal: PayPal.Me link with NO amount segment
+  // - Venmo: Profile link (user enters amount manually)
+  const paypalOpen = "https://www.paypal.me/donnapevey0209";
+  const venmoOpen  = "https://venmo.com/donna-pevey";
+
+  const paypalTarget = "https://www.paypal.me/donnapevey0209";
+  const venmoTarget  = "@donna-pevey";
+
+  const heading = showThankYou ? "Thank you for signing up!" : "Payments";
+  const subtext = showThankYou
+    ? `To secure your spot, please send the <b>$10 refundable deposit</b> using one of the methods below.`
+    : `Send the <b>$10 refundable deposit</b> using one of the methods below.`;
+
+  paymentsDefault.innerHTML = `
+    <div class="card" style="margin-top:0;">
+      <h3 style="margin:0 0 10px 0;">${heading}</h3>
+      <p style="margin:0 0 16px 0; color:#6b7280;">
+        ${subtext}
+      </p>
+
+      <div style="display:flex; gap:12px; flex-wrap:wrap; margin: 8px 0 18px 0;">
+        <a class="btn btn-paypal" href="${paypalOpen}" target="_self" rel="noopener">
+          Pay with PayPal
+        </a>
+        <a class="btn btn-venmo" href="${venmoOpen}" target="_self" rel="noopener">
+          Pay with Venmo
+        </a>
+      </div>
+
+      <div style="margin-top:10px;">
+        <div style="font-size:12px; color:#6b7280; margin-bottom:6px;">PayPal recipient email (copy/paste):</div>
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+          <input class="input" type="text" value="${paypalTarget}" readonly style="flex:1; min-width:240px;">
+          <button class="btn-small" type="button" onclick="copyText('${paypalTarget}')">Copy</button>
+        </div>
+      </div>
+
+      <div style="margin-top:14px;">
+        <div style="font-size:12px; color:#6b7280; margin-bottom:6px;">Venmo username (copy/paste):</div>
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+          <input class="input" type="text" value="${venmoTarget}" readonly style="flex:1; min-width:240px;">
+          <button class="btn-small" type="button" onclick="copyText('${venmoTarget}')">Copy</button>
+        </div>
+      </div>
+
+      <p style="margin:16px 0 0 0; color:#6b7280; font-size:12px;">
+        Paying later? Just come back and click the <b>Payments</b> tab.
+      </p>
+    </div>
+  `;
+
+  // If we showed the thank-you once, reset immediately so it won't show again.
+  if (showThankYou) justSignedUp = false;
+}
+
+
+
+
+function goToPayments(preferredMethod) {
+  if (preferredMethod) localStorage.setItem("lastPaymentMethod", preferredMethod);
+
+  const btn = document.querySelector('[data-tab="payments"]');
+  if (btn) btn.click();
+
+  const paymentsStatus = document.getElementById("paymentsStatus");
+  if (paymentsStatus && preferredMethod) {
+    renderPaymentInstructions(preferredMethod, paymentsStatus);
+  }
+  renderPaymentsHome(preferredMethod);
+}
+
+
 function getPaymentUrl(method) {
+  // We intentionally do NOT prefill amounts or notes (users can enter deposit manually).
   const links = {
-    "PayPal": "https://www.paypal.me/donnapevey0209/10",
-    "Venmo": "https://venmo.com/?txn=pay&recipients=Donna-Pevey&amount=10&note=RockExchange%20deposit"
+    "PayPal": "https://www.paypal.com/",
+    "Venmo": "https://venmo.com/"
   };
   return links[method] || "";
 }
+
+function getPaymentTarget(method) {
+  // What the user should enter in the app (copy/paste)
+  const targets = {
+    "PayPal": "robertsfamily0209@outlook.com",
+    "Venmo": "@donna-pevey"
+  };
+  return targets[method] || "";
+}
+
 
 function openPayment(method) {
   const url = getPaymentUrl(method);
@@ -2285,15 +2609,16 @@ function openPayment(method) {
   }
 }
 
-function renderPaymentInstructions(method) {
+function renderPaymentInstructions(method, targetEl) {
+  const container = targetEl || container;
   const url = getPaymentUrl(method);
   const safeMethod = String(method || "Payment").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-  signupStatus.className = "status";
+  container.className = "status";
 
   // If method isn't set or unknown, show a friendly fallback
   if (!url) {
-    signupStatus.innerHTML = `
+    container.innerHTML = `
       <div class="card" style="margin-top:16px;">
         <h3 style="margin:0 0 10px 0; text-align:center;">Thank You</h3>
         <p style="margin:0; text-align:center;">
@@ -2304,7 +2629,7 @@ function renderPaymentInstructions(method) {
     return;
   }
 
-  signupStatus.innerHTML = `
+  container.innerHTML = `
     <div class="card" style="margin-top:16px;">
       <h3 style="margin:0 0 10px 0; text-align:center;">Thank You</h3>
       <p style="margin:0 0 14px 0; text-align:center;">
@@ -2361,7 +2686,18 @@ function renderPaymentInstructions(method) {
 document.addEventListener('DOMContentLoaded', () => {
   initTabs();
   
-  // Setup search
+    // Populate Payments tab content (always available)
+  renderPaymentsHome(false);
+  const paymentsTabBtn = document.getElementById('paymentsTab');
+  if (paymentsTabBtn) {
+    paymentsTabBtn.addEventListener('click', () => {
+      renderPaymentsHome(false);
+    });
+  }
+
+
+
+// Setup search
   setupTableSearch('publicSearch', 'publicTableBody');
   setupTableSearch('adminSearch', 'adminTableBody', (row) => {
     return row.textContent.toLowerCase();
@@ -2374,5 +2710,45 @@ document.addEventListener('DOMContentLoaded', () => {
   setAdminUI({ signedIn: false, authorized: false });
 });
 </script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const paymentsTab = document.getElementById("payments");
+  if (paymentsTab) {
+    paymentsTab.innerHTML = `
+      <h2>Thank You for Signing Up!</h2>
+      <p>Your spot is not secured until the deposit is sent.</p>
+      <p><strong>Please send your deposit using one of the following methods:</strong></p>
+      
+      <div style="margin-top:20px;">
+        <h3>PayPal</h3>
+        <a href="YOUR_PAYPAL_LINK_HERE" target="_blank" style="display:inline-block;padding:10px 20px;background:#0070ba;color:#fff;text-decoration:none;border-radius:5px;">
+          Pay Deposit with PayPal
+        </a>
+      </div>
+
+      <div style="margin-top:30px;">
+        <h3>Venmo</h3>
+        <a href="YOUR_VENMO_LINK_HERE" target="_blank" style="display:inline-block;padding:10px 20px;background:#3d95ce;color:#fff;text-decoration:none;border-radius:5px;">
+          Pay Deposit with Venmo
+        </a>
+      </div>
+
+      <p style="margin-top:30px;">If you need to return later, simply click the <strong>Payments</strong> tab at the top of the site.</p>
+    `;
+  }
+});
+</script>
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll('[data-tab="payments"]').forEach(el => {
+    el.addEventListener("click", () => renderPaymentsHome(false));
+  });
+});
+</script>
+
 </body>
 </html>
