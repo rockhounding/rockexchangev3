@@ -1920,7 +1920,6 @@ submitTrackingBtn.addEventListener('click', async () => {
     });
 
     showToast("Tracking number submitted. Thank you!", "success");
-    showTrackingPopup();
 
     await loadIncomingTracking(currentRevealDocId);
   } catch (err) {
