@@ -1386,6 +1386,7 @@ function adminLogout() {
 // ===== AUTH STATE LISTENER (UNCHANGED LOGIC) =====
 auth.onAuthStateChanged(async (user) => {
   if (!user) {
+    stopAdminSignupsListener();
     setAdminUI({ signedIn: false, authorized: false });
     return;
   }
@@ -1394,11 +1395,13 @@ auth.onAuthStateChanged(async (user) => {
   if (!ok) {
     showToast("This Google account is not approved as an admin.", "error");
     await auth.signOut();
+    stopAdminSignupsListener();
     setAdminUI({ signedIn: false, authorized: false });
     return;
   }
 
   setAdminUI({ signedIn: true, authorized: true });
+  startAdminSignupsListener();
   showToast(`Welcome, ${user.displayName || user.email}`, "success");
   
   // Switch to admin tab
@@ -1562,26 +1565,37 @@ function fullStateName(code) {
   return map[c] || (code || "—");
 }
 
-// ===== TAB VISIBILITY BASED ON SETTINGS (UNCHANGED LOGIC) =====
-db.collection("settings").doc("global").onSnapshot((snap) => {
-  let revealEnabled = false;
-  if (snap.exists) {
-    const d = snap.data();
-    revealEnabled = !!d.revealEnabled;
-  }
-  
+// ===== TAB VISIBILITY BASED ON SETTINGS =====
+function applyRevealTabVisibility() {
   const revealTab = document.getElementById('revealTab');
   const signupTab = document.getElementById('signupTab');
-  
-  if (revealEnabled) {
+
+  if (revealEnabledCache) {
     revealTab.style.display = 'block';
     signupTab.style.display = 'none';
   } else {
+    revealTab.style.display = 'none';
     signupTab.style.display = 'block';
   }
-}, (err) => {
-  console.error("settings/global listener error:", err);
-});
+}
+
+async function loadSettingsGlobal(force = false) {
+  if (settingsLoadedOnce && !force) {
+    applyRevealTabVisibility();
+    return;
+  }
+
+  try {
+    const snap = await db.collection("settings").doc("global").get();
+    revealEnabledCache = !!(snap.exists && snap.data() && snap.data().revealEnabled);
+    settingsLoadedOnce = true;
+    applyRevealTabVisibility();
+  } catch (err) {
+    console.error("settings/global load error:", err);
+    applyRevealTabVisibility();
+  }
+}
+
 
 // ===== SIGN-UP LOGIC (UNCHANGED) =====
 const showSignupBtn = document.getElementById('showSignupBtn');
@@ -1717,6 +1731,12 @@ const trackingStatus = document.getElementById('trackingStatus');
 const incomingTrackingDisplay = document.getElementById('incomingTrackingDisplay');
 
 let currentRevealDocId = null;
+let revealEnabledCache = false;
+let settingsLoadedOnce = false;
+let signupsLoadedOnce = false;
+let publicSignupsCache = [];
+let adminSignupsUnsubscribe = null;
+
 
 async function loadIncomingTracking(myDocId) {
   incomingTrackingDisplay.textContent = "";
@@ -1765,9 +1785,8 @@ async function revealMatch() {
   }
 
   try {
-    const settingsSnap = await db.collection("settings").doc("global").get();
-    const revealEnabled = settingsSnap.exists && !!settingsSnap.data().revealEnabled;
-    if (!revealEnabled) {
+    await loadSettingsGlobal();
+    if (!revealEnabledCache) {
       showToast("Assignments are not revealed yet. Please wait for the organizer.", "error");
       return;
     }
@@ -1849,16 +1868,19 @@ submitTrackingBtn.addEventListener('click', async () => {
       trackingSubmittedAt: firebase.firestore.FieldValue.serverTimestamp()
     });
 
+    trackingStatus.textContent = "Tracking number submitted successfully. Thank you!";
+    trackingStatus.className = "status success";
     showToast("Tracking number submitted. Thank you!", "success");
 
-    await loadIncomingTracking(currentRevealDocId);
   } catch (err) {
     console.error(err);
+    trackingStatus.textContent = "Error saving tracking number: " + (err.message || err);
+    trackingStatus.className = "status error";
     showToast("Error saving tracking number. Please try again.", "error");
   }
 });
 
-// ===== FIRESTORE LISTENERS (UNCHANGED) =====
+// ===== FIRESTORE DATA LOADING =====
 const publicTableBody = document.getElementById('publicTableBody');
 const adminTableBody = document.getElementById('adminTableBody');
 
@@ -2005,97 +2027,111 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-db.collection("signups")
-  .orderBy("createdAt", "asc")
-  .onSnapshot((snapshot) => {
-    allSignups = [];
-    const rowsPublic = [];
-    const rowsAdmin = [];
-    let idx = 0;
-    let approvedCount = 0;
-    let pendingCount = 0;
-    let trackingCount = 0;
 
-    snapshot.forEach(doc => {
-      idx++;
-      const d = doc.data();
-      allSignups.push({ id: doc.id, ...d });
 
-      const name = d.name || "";
-      const stateCode = d.addressStateCode || d.state || "";
-      const stateFull = fullStateName(stateCode);
-      const pm = d.paymentMethod || "";
-      const depositApproved = !!d.depositApproved;
-      const trackingNumber = d.trackingNumber || "";
-      const addressFull = d.addressFull || d.address || "";
-      const code = d.code || "";
+function renderPublicFromState(list) {
+  const rowsPublic = [];
+  let idx = 0;
 
-      if (depositApproved) approvedCount++;
-      else pendingCount++;
-      if (d.trackingSubmitted) trackingCount++;
+  (Array.isArray(list) ? list : []).forEach(item => {
+    idx++;
+    const name = item.name || "";
+    const stateCode = item.addressStateCode || item.state || "";
+    const stateFull = fullStateName(stateCode);
+    const depositApproved = !!item.depositApproved;
 
-      // Public row
-      const trPub = document.createElement("tr");
-      trPub.innerHTML = `
-        <td>${idx}</td>
-        <td>${name}</td>
-        <td>${stateFull}</td>
-        <td>
-          <span class="badge ${depositApproved ? "badge-approved" : "badge-not-approved"}">
-            ${depositApproved ? "Approved" : "Pending"}
-          </span>
-        </td>
-      `;
-      rowsPublic.push(trPub);
-
-      // Admin row
-      const trAdmin = document.createElement("tr");
-      trAdmin.setAttribute("data-id", doc.id);
-      trAdmin.innerHTML = `
-        <td>${idx}</td>
-        <td>${name}</td>
-        <td style="max-width:260px;white-space:normal;">${addressFull}</td>
-        <td>${stateCode}</td>
-        <td>${code || "—"}</td>
-        <td>${pm || "—"}</td>
-        <td>
-          <span class="badge clickable ${depositApproved ? "badge-approved" : "badge-not-approved"}" data-action="approve">
-            ${depositApproved ? "Approved" : "Approve"}
-          </span>
-        </td>
-        <td>${trackingNumber ? trackingNumber : "—"}</td>
-        <td>
-          <button class="btn-small btn-danger" type="button" data-action="delete">Delete</button>
-        </td>
-      `;
-      rowsAdmin.push(trAdmin);
-    });
-
-    publicTableBody.innerHTML = "";
-    if (rowsPublic.length === 0) {
-      publicTableBody.innerHTML = '<tr><td colspan="4" class="no-data">No sign-ups yet</td></tr>';
-    } else {
-      rowsPublic.forEach(r => publicTableBody.appendChild(r));
-    }
-
-    
-adminTableBody.innerHTML = "";
-if (rowsAdmin.length === 0) {
-  adminTableBody.innerHTML = '<tr><td colspan="9" class="no-data">No sign-ups yet</td></tr>';
-} else {
-  // Render using current admin sort/group settings
-  renderAdminFromState(allSignups);
-}
-// Update stats
-    document.getElementById('statTotal').textContent = idx;
-    document.getElementById('statApproved').textContent = approvedCount;
-    document.getElementById('statPending').textContent = pendingCount;
-    document.getElementById('statTracking').textContent = trackingCount;
-
-  }, (err) => {
-    console.error("Error listening to signups:", err);
-    showToast("Error loading sign-ups", "error");
+    const trPub = document.createElement("tr");
+    trPub.innerHTML = `
+      <td>${idx}</td>
+      <td>${name}</td>
+      <td>${stateFull}</td>
+      <td>
+        <span class="badge ${depositApproved ? "badge-approved" : "badge-not-approved"}">
+          ${depositApproved ? "Approved" : "Pending"}
+        </span>
+      </td>
+    `;
+    rowsPublic.push(trPub);
   });
+
+  publicTableBody.innerHTML = "";
+  if (rowsPublic.length === 0) {
+    publicTableBody.innerHTML = '<tr><td colspan="4" class="no-data">No sign-ups yet</td></tr>';
+  } else {
+    rowsPublic.forEach(r => publicTableBody.appendChild(r));
+  }
+}
+
+function renderAdminStats(list) {
+  const arr = Array.isArray(list) ? list : [];
+  let approvedCount = 0;
+  let pendingCount = 0;
+  let trackingCount = 0;
+
+  arr.forEach(d => {
+    if (d.depositApproved) approvedCount++;
+    else pendingCount++;
+    if (d.trackingSubmitted) trackingCount++;
+  });
+
+  document.getElementById('statTotal').textContent = arr.length;
+  document.getElementById('statApproved').textContent = approvedCount;
+  document.getElementById('statPending').textContent = pendingCount;
+  document.getElementById('statTracking').textContent = trackingCount;
+}
+
+function handleSignupsSnapshot(snapshot) {
+  allSignups = [];
+  snapshot.forEach(doc => {
+    allSignups.push({ id: doc.id, ...doc.data() });
+  });
+
+  publicSignupsCache = [...allSignups];
+  signupsLoadedOnce = true;
+
+  renderPublicFromState(publicSignupsCache);
+  if (typeof renderAdminFromState === "function") renderAdminFromState(allSignups);
+  if (typeof renderAdminStats === "function") renderAdminStats(allSignups);
+}
+
+async function loadPublicSignupsOnce(force = false) {
+  if (signupsLoadedOnce && !force) {
+    renderPublicFromState(publicSignupsCache);
+    return;
+  }
+
+  try {
+    const snapshot = await db.collection("signups")
+      .orderBy("createdAt", "asc")
+      .get();
+
+    handleSignupsSnapshot(snapshot);
+  } catch (err) {
+    console.error("Error loading signups:", err);
+    showToast("Error loading sign-ups", "error");
+  }
+}
+
+function startAdminSignupsListener() {
+  if (adminSignupsUnsubscribe) return;
+
+  adminSignupsUnsubscribe = db.collection("signups")
+    .orderBy("createdAt", "asc")
+    .onSnapshot((snapshot) => {
+      handleSignupsSnapshot(snapshot);
+    }, (err) => {
+      console.error("Error listening to signups:", err);
+      showToast("Error loading sign-ups", "error");
+    });
+}
+
+function stopAdminSignupsListener() {
+  if (adminSignupsUnsubscribe) {
+    adminSignupsUnsubscribe();
+    adminSignupsUnsubscribe = null;
+  }
+}
+
 
 // ===== ADMIN ACTIONS (WITH MODAL) =====
 adminTableBody.addEventListener('click', async (e) => {
@@ -2755,10 +2791,17 @@ clearAllBtn.addEventListener('click', async () => {
   if (!confirmed) return;
 
   try {
-    const snap = await db.collection("signups").get();
+    const [signupsSnap, codesSnap] = await Promise.all([
+      db.collection("signups").get(),
+      db.collection("codes").get()
+    ]);
     const batch = db.batch();
 
-    snap.forEach(doc => {
+    signupsSnap.forEach(doc => {
+      batch.delete(doc.ref);
+    });
+
+    codesSnap.forEach(doc => {
       batch.delete(doc.ref);
     });
 
@@ -2774,8 +2817,17 @@ clearAllBtn.addEventListener('click', async () => {
     previewParticipants = null;
     previewAssignments = null;
     selectedPreviewFromIndices.clear();
+    allSignups = [];
+    publicSignupsCache = [];
+    signupsLoadedOnce = false;
+    revealEnabledCache = false;
+    settingsLoadedOnce = false;
+    renderPublicFromState([]);
+    renderAdminFromState([]);
+    renderAdminStats([]);
+    applyRevealTabVisibility();
 
-    showToast("All sign-ups cleared and swap reset.", "success");
+    showToast("All sign-ups, codes, and reveal settings were reset.", "success");
     
   } catch (err) {
     console.error(err);
@@ -3054,6 +3106,8 @@ function exportNamesList() {
 
 document.addEventListener('DOMContentLoaded', () => {
   initTabs();
+  loadSettingsGlobal();
+  loadPublicSignupsOnce();
   
     // Populate Payments tab content (always available)
   renderPaymentsHome(false);
@@ -3085,37 +3139,6 @@ document.addEventListener('DOMContentLoaded', () => {
   setAdminUI({ signedIn: false, authorized: false });
 });
 </script>
-
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-  const paymentsTab = document.getElementById("payments");
-  if (paymentsTab) {
-    paymentsTab.innerHTML = `
-      <h2>Thank You for Signing Up!</h2>
-      <p>Your spot is not secured until the deposit is sent.</p>
-      <p><strong>Please send your deposit using one of the following methods:</strong></p>
-      
-      <div style="margin-top:20px;">
-        <h3>PayPal</h3>
-        <a href="YOUR_PAYPAL_LINK_HERE" target="_blank" style="display:inline-block;padding:10px 20px;background:#0070ba;color:#fff;text-decoration:none;border-radius:5px;">
-          Pay Deposit with PayPal
-        </a>
-      </div>
-
-      <div style="margin-top:30px;">
-        <h3>Venmo</h3>
-        <a href="YOUR_VENMO_LINK_HERE" target="_blank" style="display:inline-block;padding:10px 20px;background:#3d95ce;color:#fff;text-decoration:none;border-radius:5px;">
-          Pay Deposit with Venmo
-        </a>
-      </div>
-
-      <p style="margin-top:30px;">If you need to return later, simply click the <strong>Payments</strong> tab at the top of the site.</p>
-    `;
-  }
-});
-</script>
-
-
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
