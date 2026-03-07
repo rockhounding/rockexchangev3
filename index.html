@@ -1145,6 +1145,9 @@
           </table>
         </div>
       </div>
+    </div>
+  </div>
+</div>
 
 <!-- Modal -->
 <div class="modal-overlay" id="modalOverlay">
@@ -1162,6 +1165,38 @@
   </div>
 </div>
 
+
+<!-- Tracking Submitted Popup -->
+<div id="trackingThanksPopup" style="
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.45);
+  z-index:2500;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  animation: fadeIn 0.25s ease;
+">
+  <div style="
+    background:#ffffff;
+    max-width:420px;
+    width:100%;
+    border-radius:16px;
+    padding:24px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.25);
+    text-align:center;
+  ">
+    <h3 style="margin:0 0 10px 0;">Thank you!</h3>
+    <p style="margin:0 0 18px 0; color:#374151;">
+      Your tracking number was successfully submitted.
+    </p>
+    <button id="closeTrackingPopupBtn" class="btn-secondary">
+      Close
+    </button>
+  </div>
+</div>
+
 <!-- Toast Container -->
 <div class="toast-container" id="toastContainer"></div>
 
@@ -1171,6 +1206,19 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 
 <script>
+
+function showTrackingPopup() {
+  const popup = document.getElementById("trackingThanksPopup");
+  if (popup) popup.style.display = "flex";
+}
+
+document.addEventListener("click", function(e){
+  if(e.target && e.target.id === "closeTrackingPopupBtn"){
+    const popup = document.getElementById("trackingThanksPopup");
+    if (popup) popup.style.display = "none";
+  }
+});
+
 // ===== FIREBASE CONFIG (UNCHANGED) =====
 const firebaseConfig = {
   apiKey: "AIzaSyDVlyLssFBefRTRWMNFtNJG7uKNKsWEqDA",
@@ -1850,6 +1898,7 @@ submitTrackingBtn.addEventListener('click', async () => {
     });
 
     showToast("Tracking number submitted. Thank you!", "success");
+    showTrackingPopup();
 
     await loadIncomingTracking(currentRevealDocId);
   } catch (err) {
