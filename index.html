@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -504,6 +503,19 @@
   .preview-row-selected {
     background: #eff6ff !important;
     border-left: 4px solid #3b82f6;
+  }
+
+  .preview-row-locked {
+    opacity: 0.55;
+    background: #f8fafc !important;
+  }
+
+  .preview-row-review-medium {
+    background: #fef3c7 !important;
+  }
+
+  .preview-row-review-high {
+    background: #fee2e2 !important;
   }
 
   /* ===== MODAL ===== */
@@ -1088,18 +1100,35 @@
         </div>
       </div>
 
-      <!-- Assignments Preview -->
+            <!-- Assignments Preview -->
       <div class="card">
-        <h2>Assignments Preview</h2>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h2>Assignments Preview</h2>
+
+          <div style="display:flex; gap:10px;">
+            <button id="commitAssignmentsBtn" class="btn-secondary" type="button">✅ Commit Assignments</button>
+            <button id="clearAllBtn" class="btn-danger" type="button">🗑 Clear All & Reset</button>
+          </div>
+        </div>
+
         <p class="small-note" style="text-align:left; margin-bottom: 16px;">
           <strong>Preview Assignments:</strong> Generate assignments and click rows you don't like, then regenerate until satisfied.<br>
           <strong>Commit Assignments:</strong> Saves the assignments and enables the reveal page.
         </p>
-        <div style="margin-bottom:16px;">
+
+        <div style="margin-bottom:16px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
           <button id="generatePreviewBtn" class="btn-secondary" type="button">🎲 Preview Assignments</button>
-          <button id="commitAssignmentsBtn" class="btn-secondary" type="button">✅ Commit Assignments</button>
-          <button id="clearAllBtn" class="btn-danger" type="button">🗑 Clear All & Reset</button>
+
+          <button id="selectAllRedBtn" class="btn-outline btn-small" type="button">🟥 Select All Red</button>
+          <button id="selectAllYellowBtn" class="btn-outline btn-small" type="button">🟨 Select All Yellow</button>
+          <button id="selectAllHighlightedBtn" class="btn-outline btn-small" type="button">✨ Select All Highlighted</button>
+          <button id="clearPreviewSelectionBtn" class="btn-outline btn-small" type="button">✖ Clear Selection</button>
+
+          <button id="swapSelectedBtn" class="btn-outline btn-small" type="button">🔁 Swap Selected Receivers</button>
+
+          <span id="previewSummary" class="small-note" style="margin-top:0; text-align:left;"></span>
         </div>
+
         <div class="table-wrapper">
           <table class="list-table" id="previewTable">
             <thead>
@@ -1116,9 +1145,6 @@
           </table>
         </div>
       </div>
-    </div>
-  </div>
-</div>
 
 <!-- Modal -->
 <div class="modal-overlay" id="modalOverlay">
@@ -1402,9 +1428,49 @@ function regionForState(st) {
 
     WA:"West", OR:"West", CA:"West",
 
-    AK:"Alaska", HI:"Hawaii"
+    AK:"Alaska", HI:"Hawaii",
+
+    AB:"Canada-West", BC:"Canada-West", MB:"Canada-Central", SK:"Canada-Central",
+    ON:"Canada-East", QC:"Canada-East", NB:"Canada-East", NS:"Canada-East",
+    PE:"Canada-East", NL:"Canada-East", YT:"Canada-North", NT:"Canada-North",
+    NU:"Canada-North"
   };
   return stateToRegion[up] || "Unknown";
+}
+
+function countryForStateCode(code) {
+  const up = String(code || "").toUpperCase().trim();
+  const canada = new Set(["AB","BC","MB","NB","NL","NS","NT","NU","ON","PE","QC","SK","YT"]);
+  return canada.has(up) ? "Canada" : "US";
+}
+
+const BORDERING_CODES = {
+  AL:["FL","GA","MS","TN"], AK:[], AZ:["CA","NV","UT","CO","NM"], AR:["MO","TN","MS","LA","TX","OK"],
+  CA:["OR","NV","AZ"], CO:["WY","NE","KS","OK","NM","AZ","UT"], CT:["NY","MA","RI"], DE:["MD","NJ","PA"],
+  FL:["AL","GA"], GA:["FL","AL","TN","NC","SC"], HI:[], ID:["WA","OR","NV","UT","WY","MT"],
+  IL:["WI","IA","MO","KY","IN","MI"], IN:["MI","OH","KY","IL"], IA:["MN","SD","NE","MO","IL","WI"],
+  KS:["NE","MO","OK","CO"], KY:["IL","IN","OH","WV","VA","TN","MO"], LA:["TX","AR","MS"],
+  ME:["NH"], MD:["VA","WV","PA","DE","DC"], MA:["RI","CT","NY","VT","NH"], MI:["WI","IN","OH","MN"],
+  MN:["ND","SD","IA","WI","MI"], MS:["LA","AR","TN","AL"], MO:["IA","IL","KY","TN","AR","OK","KS","NE"],
+  MT:["ID","WY","SD","ND"], NE:["SD","IA","MO","KS","CO","WY"], NV:["CA","OR","ID","UT","AZ"],
+  NH:["ME","MA","VT"], NJ:["NY","DE","PA"], NM:["AZ","UT","CO","OK","TX"], NY:["PA","NJ","CT","MA","VT"],
+  NC:["VA","TN","GA","SC"], ND:["MT","SD","MN"], OH:["MI","PA","WV","KY","IN"], OK:["CO","KS","MO","AR","TX","NM"],
+  OR:["WA","ID","NV","CA"], PA:["NY","NJ","DE","MD","WV","OH"], RI:["CT","MA"], SC:["NC","GA"],
+  SD:["ND","MN","IA","NE","WY","MT"], TN:["KY","VA","NC","GA","AL","MS","AR","MO"], TX:["NM","OK","AR","LA"],
+  UT:["ID","WY","CO","NM","AZ","NV"], VT:["NY","NH","MA"], VA:["NC","TN","KY","WV","MD","DC"],
+  WA:["ID","OR"], WV:["OH","PA","MD","VA","KY"], WI:["MI","MN","IA","IL"], WY:["MT","SD","NE","CO","UT","ID"], DC:["MD","VA"],
+  AB:["BC","SK","NT"], BC:["YT","NT","AB"], MB:["SK","ON","NU"], NB:["QC","NS","PE"], NL:["QC"], NS:["NB","PE"],
+  NT:["YT","BC","AB","SK","NU"], NU:["NT","MB","ON","QC","NL"], ON:["MB","NU","QC"], PE:["NB","NS"],
+  QC:["ON","NU","NL","NB"], SK:["AB","NT","MB"], YT:["BC","NT"]
+};
+
+function isBorderingState(codeA, codeB) {
+  const a = String(codeA || "").toUpperCase().trim();
+  const b = String(codeB || "").toUpperCase().trim();
+  if (!a || !b || a === b) return false;
+  const listA = BORDERING_CODES[a] || [];
+  const listB = BORDERING_CODES[b] || [];
+  return listA.includes(b) || listB.includes(a);
 }
 
 function titleCaseWord(word) {
@@ -1522,37 +1588,13 @@ const showSignupBtn = document.getElementById('showSignupBtn');
 const signupForm = document.getElementById('signupForm');
 const signupStatus = document.getElementById('signupStatus');
 
-const SIGNUPS_CLOSED = true;
-
-if (SIGNUPS_CLOSED) {
+showSignupBtn.addEventListener('click', () => {
+  signupForm.style.display = 'block';
   showSignupBtn.style.display = 'none';
-  document.getElementById('signupIntro').innerHTML = `
-    <div class="card" style="max-width:700px;margin:0 auto;text-align:center;">
-      <h3 style="margin-bottom:8px;">Sign-ups are closed</h3>
-      <p style="margin:0;color:#6b7280;">
-        Sign-ups are now closed while assignments are being prepared.
-      </p>
-    </div>
-  `;
-} else {
-  showSignupBtn.addEventListener('click', () => {
-    signupForm.style.display = 'block';
-    showSignupBtn.style.display = 'none';
-  });
-}
+});
 
 signupForm.addEventListener('submit', async (e) => {
-
   e.preventDefault();
-
-  // BLOCK NEW SIGNUPS
-  const SIGNUPS_CLOSED = true;
-
-  if (SIGNUPS_CLOSED) {
-    showToast("Sign-ups are now closed while assignments are being prepared.", "error");
-    return;
-  }
-
   signupStatus.textContent = "";
   signupStatus.className = "status";
 
@@ -2102,11 +2144,17 @@ adminTableBody.addEventListener('click', async (e) => {
   }
 });
 
-// ===== ASSIGNMENTS (UNCHANGED LOGIC) =====
+// ===== ASSIGNMENTS =====
 const generatePreviewBtn = document.getElementById('generatePreviewBtn');
 const commitAssignmentsBtn = document.getElementById('commitAssignmentsBtn');
 const previewTableBody = document.getElementById('previewTableBody');
 const clearAllBtn = document.getElementById('clearAllBtn');
+const selectAllRedBtn = document.getElementById('selectAllRedBtn');
+const selectAllYellowBtn = document.getElementById('selectAllYellowBtn');
+const selectAllHighlightedBtn = document.getElementById('selectAllHighlightedBtn');
+const clearPreviewSelectionBtn = document.getElementById('clearPreviewSelectionBtn');
+const swapSelectedBtn = document.getElementById('swapSelectedBtn');
+const previewSummary = document.getElementById('previewSummary');
 
 let previewParticipants = null;
 let previewAssignments = null;
@@ -2120,44 +2168,130 @@ function shuffle(arr) {
   return arr;
 }
 
+function stateDistance(codeA, codeB) {
+  const a = String(codeA || "").toUpperCase().trim();
+  const b = String(codeB || "").toUpperCase().trim();
+  if (!a || !b) return Infinity;
+  if (a === b) return 0;
+  if (countryForStateCode(a) !== countryForStateCode(b)) return Infinity;
+
+  const visited = new Set([a]);
+  let frontier = [a];
+  let distance = 0;
+
+  while (frontier.length) {
+    distance += 1;
+    const next = [];
+    for (const cur of frontier) {
+      const neighbors = BORDERING_CODES[cur] || [];
+      for (const nb of neighbors) {
+        if (visited.has(nb)) continue;
+        if (countryForStateCode(nb) !== countryForStateCode(a)) continue;
+        if (nb === b) return distance;
+        visited.add(nb);
+        next.push(nb);
+      }
+    }
+    frontier = next;
+  }
+
+  return Infinity;
+}
+
+function assignmentPenalty(from, to) {
+  if (!from || !to) return 0;
+  if (from.id === to.id) return 1000000;
+
+  let penalty = 0;
+  const fromCountry = countryForStateCode(from.stateCode);
+  const toCountry = countryForStateCode(to.stateCode);
+  const distance = stateDistance(from.stateCode, to.stateCode);
+
+  if (fromCountry !== toCountry) penalty += 1000000;
+  if (distance === 0) penalty += 50000;
+  else if (distance === 1) penalty += 12000;
+  else if (distance === 2) penalty += 3500;
+  else if (distance === 3) penalty += 900;
+
+  if (from.region !== "Unknown" && to.region !== "Unknown" && from.region === to.region) {
+    penalty += 250;
+  }
+
+  if (distance !== Infinity) {
+    penalty += Math.max(0, 8 - distance) * 35;
+  }
+
+  return penalty;
+}
+
+function scoreAssignments(participants, perm) {
+  const n = participants.length;
+  let total = 0;
+  let twoCycles = 0;
+
+  for (let i = 0; i < n; i++) {
+    total += assignmentPenalty(participants[i], participants[perm[i]]);
+  }
+
+  for (let i = 0; i < n; i++) {
+    const j = perm[i];
+    if (j > i && perm[j] === i) {
+      twoCycles++;
+    }
+  }
+
+  return total + (twoCycles * 7000);
+}
+
+function buildAssignmentArrayFromPerm(perm) {
+  const assignments = [];
+  for (let i = 0; i < perm.length; i++) {
+    assignments.push({ fromIndex: i, toIndex: perm[i] });
+  }
+  return assignments;
+}
+
+function generateRandomDerangement(n) {
+  if (n < 2) return null;
+  const arr = [...Array(n).keys()];
+  for (let attempt = 0; attempt < 80; attempt++) {
+    shuffle(arr);
+    let ok = true;
+    for (let i = 0; i < n; i++) {
+      if (arr[i] === i) {
+        ok = false;
+        break;
+      }
+    }
+    if (ok) return arr.slice();
+  }
+
+  const arr2 = [...Array(n).keys()];
+  shuffle(arr2);
+  for (let i = 0; i < n; i++) {
+    if (arr2[i] === i) {
+      const j = (i + 1) % n;
+      [arr2[i], arr2[j]] = [arr2[j], arr2[i]];
+    }
+  }
+  for (let i = 0; i < n; i++) {
+    if (arr2[i] === i) return null;
+  }
+  return arr2;
+}
+
 function generateAssignments(participants) {
   const n = participants.length;
   if (n < 2) return null;
 
-  const idxs = [...Array(n).keys()];
   let bestPerm = null;
   let bestScore = Infinity;
-  const maxTries = 500;
-
-  function score(perm) {
-    let selfSend = 0;
-    let regionConf = 0;
-    let twoCycles = 0;
-
-    for (let i = 0; i < n; i++) {
-      const j = perm[i];
-      if (i === j) selfSend++;
-      const a = participants[i];
-      const b = participants[j];
-      if (a.region !== "Unknown" && b.region !== "Unknown" && a.region === b.region) {
-        regionConf++;
-      }
-    }
-
-    for (let i = 0; i < n; i++) {
-      const j = perm[i];
-      if (j > i && perm[j] === i) {
-        twoCycles++;
-      }
-    }
-
-    return selfSend * 10000 + twoCycles * 100 + regionConf;
-  }
+  const maxTries = 600;
 
   for (let attempt = 0; attempt < maxTries; attempt++) {
-    shuffle(idxs);
-    const perm = idxs.slice();
-    const s = score(perm);
+    const perm = generateRandomDerangement(n);
+    if (!perm) continue;
+    const s = scoreAssignments(participants, perm);
     if (s < bestScore) {
       bestScore = s;
       bestPerm = perm.slice();
@@ -2166,31 +2300,7 @@ function generateAssignments(participants) {
   }
 
   if (!bestPerm) return null;
-
-  for (let i = 0; i < n; i++) {
-    if (bestPerm[i] === i) {
-      let swapWith = -1;
-      for (let j = 0; j < n; j++) {
-        if (j === i) continue;
-        if (bestPerm[j] === j) continue;
-        if (bestPerm[j] === i) continue;
-        swapWith = j;
-        break;
-      }
-      if (swapWith === -1) {
-        const j = (i + 1) % n;
-        [bestPerm[i], bestPerm[j]] = [bestPerm[j], bestPerm[i]];
-      } else {
-        [bestPerm[i], bestPerm[swapWith]] = [bestPerm[swapWith], bestPerm[i]];
-      }
-    }
-  }
-
-  const assignments = [];
-  for (let i = 0; i < n; i++) {
-    assignments.push({ fromIndex: i, toIndex: bestPerm[i] });
-  }
-  return assignments;
+  return buildAssignmentArrayFromPerm(bestPerm);
 }
 
 function rerollSubsetAssignments(participants, assignments, selectedFromIdxArr) {
@@ -2202,50 +2312,43 @@ function rerollSubsetAssignments(participants, assignments, selectedFromIdxArr) 
     dest[i] = assignments[i].toIndex;
   }
 
-  const S = selectedFromIdxArr;
+  const S = selectedFromIdxArr.slice();
   const m = S.length;
   const pool = S.map(i => dest[i]);
 
-  const maxTries = 400;
+  const maxTries = 300;
   let bestMap = null;
   let bestScore = Infinity;
 
-  function scoreMapping(perm) {
-    const tempDest = dest.slice();
-    for (let k = 0; k < m; k++) {
-      const fromIdx = S[k];
-      const toIdx = pool[perm[k]];
-      tempDest[fromIdx] = toIdx;
-    }
-
-    let selfSend = 0;
-    let regionConf = 0;
+  function selectedSubsetScore(tempDest) {
+    let high = 0;
+    let medium = 0;
+    let penalty = 0;
     let twoCycles = 0;
 
-    for (let i = 0; i < n; i++) {
-      const j = tempDest[i];
-      if (i === j) selfSend++;
-      const a = participants[i];
-      const b = participants[j];
-      if (a.region !== "Unknown" && b.region !== "Unknown" && a.region === b.region) {
-        regionConf++;
-      }
+    for (const fromIdx of S) {
+      const toIdx = tempDest[fromIdx];
+      const from = participants[fromIdx];
+      const to = participants[toIdx];
+      const level = reviewLevel(from, to);
+      if (level === "high") high++;
+      else if (level === "medium") medium++;
+      penalty += assignmentPenalty(from, to);
+
+      const back = tempDest[toIdx];
+      if (back === fromIdx && toIdx !== fromIdx) twoCycles++;
     }
 
-    for (let i = 0; i < n; i++) {
-      const j = tempDest[i];
-      if (j > i && tempDest[j] === i) {
-        twoCycles++;
-      }
-    }
-
-    return selfSend * 10000 + twoCycles * 100 + regionConf;
+    return (high * 1000000) + (medium * 10000) + penalty + (twoCycles * 6000);
   }
 
-  for (let attempt = 0; attempt < maxTries; attempt++) {
-    const perm = [...Array(m).keys()];
-    shuffle(perm);
+  const currentScore = selectedSubsetScore(dest);
 
+  for (let attempt = 0; attempt < maxTries; attempt++) {
+    const perm = generateRandomDerangement(m);
+    if (!perm) continue;
+
+    const tempDest = dest.slice();
     let bad = false;
     for (let k = 0; k < m; k++) {
       const fromIdx = S[k];
@@ -2254,10 +2357,11 @@ function rerollSubsetAssignments(participants, assignments, selectedFromIdxArr) 
         bad = true;
         break;
       }
+      tempDest[fromIdx] = toIdx;
     }
     if (bad) continue;
 
-    const sc = scoreMapping(perm);
+    const sc = selectedSubsetScore(tempDest);
     if (sc < bestScore) {
       bestScore = sc;
       bestMap = perm.slice();
@@ -2265,7 +2369,7 @@ function rerollSubsetAssignments(participants, assignments, selectedFromIdxArr) 
     }
   }
 
-  if (!bestMap) return false;
+  if (!bestMap || bestScore >= currentScore) return false;
 
   for (let k = 0; k < m; k++) {
     const fromIdx = S[k];
@@ -2280,31 +2384,135 @@ function rerollSubsetAssignments(participants, assignments, selectedFromIdxArr) 
   return true;
 }
 
-function renderPreviewTable(participants, assignments) {
+function reviewLevel(from, to) {
+  if (!from || !to) return "";
+  const fromCountry = countryForStateCode(from.stateCode);
+  const toCountry = countryForStateCode(to.stateCode);
+  const distance = stateDistance(from.stateCode, to.stateCode);
+  if (fromCountry !== toCountry) return "high";
+  if (distance === 0) return "high";
+  if (distance === 1) return "high";
+  if (distance === 2) return "medium";
+  if (from.region !== "Unknown" && to.region !== "Unknown" && from.region === to.region) return "medium";
+  return "";
+}
+
+function reviewReason(from, to) {
+  if (!from || !to) return "";
+  const fromCountry = countryForStateCode(from.stateCode);
+  const toCountry = countryForStateCode(to.stateCode);
+  const distance = stateDistance(from.stateCode, to.stateCode);
+  if (fromCountry !== toCountry) return "country mismatch";
+  if (distance === 0) return "same state/province";
+  if (distance === 1) return "bordering state/province";
+  if (distance === 2) return "two states/provinces away";
+  if (from.region !== "Unknown" && to.region !== "Unknown" && from.region === to.region) return "same region";
+  return "good distance";
+}
+
+function updatePreviewSummary(items) {
+  if (!previewSummary) return;
+  const red = items.filter(x => x.level === "high").length;
+  const yellow = items.filter(x => x.level === "medium").length;
+  const selected = items.filter(x => x.selected).length;
+  const total = items.length;
+  previewSummary.textContent = `Red: ${red} • Yellow: ${yellow} • Selected: ${selected} • Total: ${total}`;
+}
+
+function swapSelectedPreviewReceivers() {
+  if (!previewParticipants || !previewAssignments) {
+    showToast("Generate a preview first.", "error");
+    return false;
+  }
+
+  const selected = Array.from(selectedPreviewFromIndices);
+  if (selected.length !== 2) {
+    showToast("Select exactly 2 rows to swap receivers.", "error");
+    return false;
+  }
+
+  const [fromA, fromB] = selected;
+  if (fromA === fromB) {
+    showToast("Select two different rows.", "error");
+    return false;
+  }
+
+  const rowA = previewAssignments[fromA];
+  const rowB = previewAssignments[fromB];
+  if (!rowA || !rowB) {
+    showToast("Could not find those preview rows.", "error");
+    return false;
+  }
+
+  const toA = rowA.toIndex;
+  const toB = rowB.toIndex;
+  if (toA === toB) {
+    showToast("Those two rows already point to the same receiver.", "error");
+    return false;
+  }
+
+  if (toA === fromB || toB === fromA) {
+    // This is still allowed; just letting the user know via review colors afterward.
+  }
+
+  rowA.toIndex = toB;
+  rowB.toIndex = toA;
+  return true;
+}
+
+function renderPreviewTable(participants, assignments, preserveSelection = false) {
+  const selectedBefore = preserveSelection ? new Set(selectedPreviewFromIndices) : new Set();
   previewTableBody.innerHTML = "";
-  selectedPreviewFromIndices.clear();
+  if (!preserveSelection) selectedPreviewFromIndices.clear();
 
   if (!assignments || assignments.length === 0) {
     previewTableBody.innerHTML = '<tr><td colspan="4" class="no-data">No assignments</td></tr>';
+    if (previewSummary) previewSummary.textContent = "";
     return;
   }
 
-  assignments.forEach((a, idx) => {
-    const from = participants[a.fromIndex];
-    const to = participants[a.toIndex];
+  const hasSelection = preserveSelection ? selectedBefore.size > 0 : selectedPreviewFromIndices.size > 0;
+  const groupedAssignments = assignments
+    .map((a, originalIndex) => {
+      const from = participants[a.fromIndex];
+      const to = participants[a.toIndex];
+      const level = reviewLevel(from, to);
+      const selected = preserveSelection ? selectedBefore.has(a.fromIndex) : selectedPreviewFromIndices.has(a.fromIndex);
+      const priority = level === "high" ? 0 : level === "medium" ? 1 : 2;
+      return { a, from, to, level, selected, priority, originalIndex, reason: reviewReason(from, to) };
+    })
+    .sort((x, y) => {
+      if (x.priority !== y.priority) return x.priority - y.priority;
+      if (x.selected !== y.selected) return x.selected ? -1 : 1;
+      return x.originalIndex - y.originalIndex;
+    });
+
+  groupedAssignments.forEach((item, idx) => {
+    const { a, from, to, level, selected, reason } = item;
 
     const tr = document.createElement("tr");
     tr.className = "preview-row";
+    if (level === "high") tr.classList.add("preview-row-review-high");
+    else if (level === "medium") tr.classList.add("preview-row-review-medium");
+    if (selected) tr.classList.add("preview-row-selected");
+    else if (hasSelection) tr.classList.add("preview-row-locked");
+
     tr.setAttribute("data-from-index", String(a.fromIndex));
+    tr.setAttribute("data-review-level", level);
     tr.innerHTML = `
       <td>${idx + 1}</td>
       <td>${from.name} (${from.stateCode})</td>
       <td style="text-align:center;">→</td>
-      <td>${to.name} (${to.stateCode})</td>
+      <td>${to.name} (${to.stateCode})${reason ? ` <span style="color:#6b7280;font-size:12px;">• ${reason}</span>` : ""}</td>
     `;
     previewTableBody.appendChild(tr);
   });
 
+  if (preserveSelection) {
+    selectedPreviewFromIndices = selectedBefore;
+  }
+
+  updatePreviewSummary(groupedAssignments);
   attachPreviewRowHandlers();
 }
 
@@ -2315,14 +2523,44 @@ function attachPreviewRowHandlers() {
       const fromIdx = parseInt(row.getAttribute('data-from-index'), 10);
       if (selectedPreviewFromIndices.has(fromIdx)) {
         selectedPreviewFromIndices.delete(fromIdx);
-        row.classList.remove('preview-row-selected');
       } else {
         selectedPreviewFromIndices.add(fromIdx);
-        row.classList.add('preview-row-selected');
       }
+      renderPreviewTable(previewParticipants, previewAssignments, true);
     });
   });
 }
+
+function selectPreviewRowsByLevel(levels) {
+  if (!previewParticipants || !previewAssignments) {
+    showToast("Generate a preview first.", "error");
+    return;
+  }
+
+  selectedPreviewFromIndices.clear();
+  previewAssignments.forEach(a => {
+    const from = previewParticipants[a.fromIndex];
+    const to = previewParticipants[a.toIndex];
+    const level = reviewLevel(from, to);
+    if (levels.includes(level)) {
+      selectedPreviewFromIndices.add(a.fromIndex);
+    }
+  });
+
+  renderPreviewTable(previewParticipants, previewAssignments, true);
+  showToast(`Selected ${selectedPreviewFromIndices.size} highlighted row(s).`, "success");
+}
+
+selectAllRedBtn?.addEventListener('click', () => selectPreviewRowsByLevel(["high"]));
+selectAllYellowBtn?.addEventListener('click', () => selectPreviewRowsByLevel(["medium"]));
+selectAllHighlightedBtn?.addEventListener('click', () => selectPreviewRowsByLevel(["high", "medium"]));
+clearPreviewSelectionBtn?.addEventListener('click', () => {
+  selectedPreviewFromIndices.clear();
+  if (previewParticipants && previewAssignments) {
+    renderPreviewTable(previewParticipants, previewAssignments, true);
+  }
+  showToast("Preview selection cleared.", "success");
+});
 
 function sameParticipantSet(oldList, newList) {
   if (!oldList) return false;
@@ -2366,6 +2604,7 @@ generatePreviewBtn.addEventListener('click', async () => {
         addressFull: d.addressFull || d.address || "",
         stateCode,
         region: regionForState(stateCode),
+        country: countryForStateCode(stateCode),
         code: d.code || ""
       });
     });
@@ -2383,9 +2622,9 @@ generatePreviewBtn.addEventListener('click', async () => {
 
       previewParticipants = participantsNow;
       previewAssignments = assignments;
-      renderPreviewTable(previewParticipants, previewAssignments);
+      renderPreviewTable(previewParticipants, previewAssignments, false);
 
-      showToast("Preview assignments generated. Click rows to re-roll.", "success");
+      showToast("Preview assignments generated. Use Select All Red / Yellow to bulk reroll bad matches.", "success");
       return;
     }
 
@@ -2399,8 +2638,8 @@ generatePreviewBtn.addEventListener('click', async () => {
         return;
       }
       previewAssignments = assignments;
-      renderPreviewTable(previewParticipants, previewAssignments);
-      showToast("Entire preview re-rolled.", "success");
+      renderPreviewTable(previewParticipants, previewAssignments, false);
+      showToast("Entire preview re-rolled with stronger distance scoring.", "success");
     } else if (selected.length === 1) {
       showToast("Select at least 2 rows to re-roll subset.", "error");
     } else {
@@ -2409,13 +2648,42 @@ generatePreviewBtn.addEventListener('click', async () => {
         showToast("Could not find better subset re-roll. Try different selection.", "error");
         return;
       }
-      renderPreviewTable(previewParticipants, previewAssignments);
-      showToast("Selected preview rows re-rolled.", "success");
+      renderPreviewTable(previewParticipants, previewAssignments, true);
+      showToast("Selected preview rows re-rolled. Unselected rows stayed locked.", "success");
     }
   } catch (err) {
     console.error(err);
     showToast("Error generating preview assignments.", "error");
   }
+});
+
+selectAllRedBtn.addEventListener('click', () => {
+  selectPreviewRowsByLevel(["high"]);
+});
+
+selectAllYellowBtn.addEventListener('click', () => {
+  selectPreviewRowsByLevel(["medium"]);
+});
+
+selectAllHighlightedBtn.addEventListener('click', () => {
+  selectPreviewRowsByLevel(["high", "medium"]);
+});
+
+clearPreviewSelectionBtn.addEventListener('click', () => {
+  if (!previewParticipants || !previewAssignments) {
+    showToast("Generate a preview first.", "error");
+    return;
+  }
+  selectedPreviewFromIndices.clear();
+  renderPreviewTable(previewParticipants, previewAssignments, true);
+  showToast("Preview selection cleared.", "success");
+});
+
+swapSelectedBtn.addEventListener('click', () => {
+  const ok = swapSelectedPreviewReceivers();
+  if (!ok) return;
+  renderPreviewTable(previewParticipants, previewAssignments, true);
+  showToast("Selected receivers swapped in preview only.", "success");
 });
 
 commitAssignmentsBtn.addEventListener('click', async () => {
