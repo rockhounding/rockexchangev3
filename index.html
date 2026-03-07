@@ -1060,6 +1060,10 @@
           <span class="search-icon">🔍</span>
           <input type="search" id="adminSearch" placeholder="Search by name, code, or address...">
         </div>
+        <div style="margin-bottom: 16px; display:flex; gap:10px; flex-wrap:wrap;">
+          <button id="copyNamesBtn" class="btn-secondary" type="button">📋 Copy Names List</button>
+          <button id="exportNamesBtn" class="btn-secondary" type="button">📄 Export Names .txt</button>
+        </div>
         <div class="table-wrapper">
           
 <table class="list-table" id="adminTable">
@@ -1518,13 +1522,37 @@ const showSignupBtn = document.getElementById('showSignupBtn');
 const signupForm = document.getElementById('signupForm');
 const signupStatus = document.getElementById('signupStatus');
 
-showSignupBtn.addEventListener('click', () => {
-  signupForm.style.display = 'block';
+const SIGNUPS_CLOSED = true;
+
+if (SIGNUPS_CLOSED) {
   showSignupBtn.style.display = 'none';
-});
+  document.getElementById('signupIntro').innerHTML = `
+    <div class="card" style="max-width:700px;margin:0 auto;text-align:center;">
+      <h3 style="margin-bottom:8px;">Sign-ups are closed</h3>
+      <p style="margin:0;color:#6b7280;">
+        Sign-ups are now closed while assignments are being prepared.
+      </p>
+    </div>
+  `;
+} else {
+  showSignupBtn.addEventListener('click', () => {
+    signupForm.style.display = 'block';
+    showSignupBtn.style.display = 'none';
+  });
+}
 
 signupForm.addEventListener('submit', async (e) => {
+
   e.preventDefault();
+
+  // BLOCK NEW SIGNUPS
+  const SIGNUPS_CLOSED = true;
+
+  if (SIGNUPS_CLOSED) {
+    showToast("Sign-ups are now closed while assignments are being prepared.", "error");
+    return;
+  }
+
   signupStatus.textContent = "";
   signupStatus.className = "status";
 
@@ -2001,7 +2029,7 @@ db.collection("signups")
       rowsAdmin.push(trAdmin);
     });
 
-    publicTableBodyinnerHTML = "";
+    publicTableBody.innerHTML = "";
     if (rowsPublic.length === 0) {
       publicTableBody.innerHTML = '<tr><td colspan="4" class="no-data">No sign-ups yet</td></tr>';
     } else {
@@ -2683,6 +2711,79 @@ function renderPaymentInstructions(method, targetEl) {
   }
 }
 // ===== INITIALIZE =====
+
+function getVisibleAdminNames() {
+  const body = document.getElementById('adminTableBody');
+  if (!body) return [];
+
+  const rows = Array.from(body.querySelectorAll('tr'));
+  return rows
+    .filter(row => !row.classList.contains('no-data'))
+    .filter(row => row.style.display !== 'none')
+    .map(row => {
+      const nameCell = row.children[1];
+      return nameCell ? nameCell.textContent.trim() : '';
+    })
+    .filter(Boolean);
+}
+
+async function copyNamesList() {
+  const names = getVisibleAdminNames();
+  if (!names.length) {
+    showToast('No names available to copy.', 'error');
+    return;
+  }
+
+  const textToCopy = names.join('\n');
+
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(textToCopy);
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = textToCopy;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+    showToast(`Copied ${names.length} name${names.length === 1 ? '' : 's'}.`, 'success');
+  } catch (err) {
+    console.error('Copy names failed:', err);
+    showToast('Could not copy names list.', 'error');
+  }
+}
+
+function exportNamesList() {
+  const names = getVisibleAdminNames();
+  if (!names.length) {
+    showToast('No names available to export.', 'error');
+    return;
+  }
+
+  const blob = new Blob([names.join('\n')], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const now = new Date();
+  const stamp = [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, '0'),
+    String(now.getDate()).padStart(2, '0')
+  ].join('-');
+
+  a.href = url;
+  a.download = `names-list-${stamp}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  showToast(`Exported ${names.length} name${names.length === 1 ? '' : 's'}.`, 'success');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initTabs();
   
@@ -2699,6 +2800,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Setup search
   setupTableSearch('publicSearch', 'publicTableBody');
+
+  const copyNamesBtn = document.getElementById('copyNamesBtn');
+  const exportNamesBtn = document.getElementById('exportNamesBtn');
+  if (copyNamesBtn) copyNamesBtn.addEventListener('click', copyNamesList);
+  if (exportNamesBtn) exportNamesBtn.addEventListener('click', exportNamesList);
+
   setupTableSearch('adminSearch', 'adminTableBody', (row) => {
     return row.textContent.toLowerCase();
   });
